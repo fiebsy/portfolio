@@ -31,7 +31,7 @@ const sizeClasses = {
 
 const variantPadding = {
   sm: 'px-2 py-0.5',
-  md: 'px-3 py-1',
+  md: 'px-2 py-2',
   lg: 'px-4 py-1.5'
 };
 
@@ -49,10 +49,11 @@ const roundedClasses = {
   full: 'rounded-full'
 };
 
-const iconSizes = {
-  sm: 12,
-  md: 16,
-  lg: 20
+// Map badge size to Tailwind size classes
+const iconSizeClasses = {
+  sm: 'w-3 h-3',
+  md: 'w-4 h-4',
+  lg: 'w-5 h-5'
 };
 
 const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(({
@@ -74,8 +75,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(({
       return (
         <Player
           src={icon}
-          className="inline-block"
-          style={{ width: iconSizes[size], height: iconSizes[size] }}
+          className={`inline-block ${iconSizeClasses[size]}`}
           autoplay
           loop
         />
@@ -86,10 +86,9 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(({
     if (typeof icon !== 'string') {
       const IconComponent = icon;
       return (
-        <IconComponent
-          className={iconOnly ? '' : `${position === 'left' ? 'mr-1' : 'ml-1'}`}
-          size={iconSizes[size]}
-        />
+        <div className={`flex items-center justify-center ${iconSizeClasses[size]} ${iconOnly ? '' : position === 'left' ? 'mr-1' : 'ml-1'}`}>
+          <IconComponent className="w-full h-full" />
+        </div>
       );
     }
 

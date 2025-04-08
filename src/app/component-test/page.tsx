@@ -2,6 +2,24 @@
 
 import Badge from '@/components/ui/badge';
 import { Github, Star, ChevronRight } from 'lucide-react';
+import {
+  TsNeutralLogo,
+  TsColorLogo,
+  ReactLogo,
+  ReactColorLogo,
+  TailwindLogo,
+  TailwindColorLogo,
+  FirebaseLogo,
+  FirebaseColorLogo,
+  FigmaLogo,
+  FigmaColorLogo,
+  FramerLogo,
+  FramerColorLogo,
+  BigqueryColorLogo,
+  LottieLogo,
+  NextjsLogo,
+  WhopLogoBrandmarkOrangeLogo
+} from '@/components/icons/logos';
 
 // Using local Lottie animation
 const LOCATION_LOTTIE = '/lotties/location.json';
@@ -11,6 +29,108 @@ export default function ComponentTest() {
     <main className="min-h-screen bg-gray-17 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-medium text-gray-5 mb-12">Component Testing</h1>
+
+        {/* Logo Components */}
+        <section className="space-y-6 mb-16">
+          <h2 className="text-xl font-medium text-gray-5 mb-8">Logo Components</h2>
+          
+          {/* Customizable Version */}
+          <div className="space-y-4">
+            <h3 className="text-sm text-gray-9">Customizable Version (Inherited Color)</h3>
+            <div className="flex gap-4 items-center flex-wrap text-gray-5">
+              <div className="w-8 h-8"><TsNeutralLogo /></div>
+              <div className="w-8 h-8"><ReactLogo /></div>
+              <div className="w-8 h-8"><TailwindLogo /></div>
+              <div className="w-8 h-8"><FirebaseLogo /></div>
+              <div className="w-8 h-8"><FigmaLogo /></div>
+              <div className="w-8 h-8"><FramerLogo /></div>
+              <div className="w-8 h-8"><LottieLogo /></div>
+              <div className="w-8 h-8"><NextjsLogo /></div>
+              <div className="w-8 h-8"><WhopLogoBrandmarkOrangeLogo /></div>
+            </div>
+          </div>
+
+          {/* Brand Colors Version */}
+          <div className="space-y-4">
+            <h3 className="text-sm text-gray-9">Brand Colors Version</h3>
+            <div className="flex gap-4 items-center flex-wrap">
+              <div className="w-8 h-8"><TsColorLogo /></div>
+              <div className="w-8 h-8"><ReactColorLogo /></div>
+              <div className="w-8 h-8"><TailwindColorLogo /></div>
+              <div className="w-8 h-8"><FirebaseColorLogo /></div>
+              <div className="w-8 h-8"><FigmaColorLogo /></div>
+              <div className="w-8 h-8"><FramerColorLogo /></div>
+              <div className="w-8 h-8"><BigqueryColorLogo /></div>
+            </div>
+          </div>
+
+          {/* With Custom Colors */}
+          <div className="space-y-4">
+            <h3 className="text-sm text-gray-9">Custom Colors</h3>
+            <div className="flex gap-4 items-center flex-wrap">
+              <div className="w-8 h-8"><TsNeutralLogo color="#FF6B6B" /></div>
+              <div className="w-8 h-8"><ReactLogo color="#4ECDC4" /></div>
+              <div className="w-8 h-8"><TailwindLogo color="#96CEB4" /></div>
+              <div className="w-8 h-8"><FirebaseLogo color="#FFEEAD" /></div>
+              <div className="w-8 h-8"><FigmaLogo color="#D4A5A5" /></div>
+              <div className="w-8 h-8"><FramerLogo color="#9B59B6" /></div>
+              <div className="w-8 h-8"><LottieLogo color="#2ECC71" /></div>
+              <div className="w-8 h-8"><NextjsLogo color="#F39C12" /></div>
+              <div className="w-8 h-8"><WhopLogoBrandmarkOrangeLogo color="#E74C3C" /></div>
+            </div>
+          </div>
+
+          {/* Different Sizes */}
+          <div className="space-y-4">
+            <h3 className="text-sm text-gray-9">Different Sizes</h3>
+            <div className="flex gap-8 items-center">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-xs text-gray-9">Customizable</span>
+                <div className="flex gap-4 items-center">
+                  <div className="w-8 h-8"><TsNeutralLogo /></div>
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-xs text-gray-9">Brand Colors</span>
+                <div className="flex gap-4 items-center">
+                  <div className="w-8 h-8"><TsColorLogo /></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* In Badges */}
+          <div className="space-y-4">
+            <h3 className="text-sm text-gray-9">In Badges</h3>
+            <div className="flex gap-4 items-center flex-wrap">
+              <Badge size="md" leftIcon={() => <div className="w-8 h-8"><TsColorLogo /></div>}>
+                TypeScript
+              </Badge>
+              <Badge size="md" leftIcon={() => <div className="w-8 h-8"><ReactColorLogo /></div>}>
+                React
+              </Badge>
+              <Badge size="md" leftIcon={() => <div className="w-8 h-8"><TailwindColorLogo /></div>}>
+                Tailwind
+              </Badge>
+            </div>
+          </div>
+
+          {/* Non-Colored Version (text-gray-1) */}
+          <div className="space-y-4">
+            <h3 className="text-sm text-gray-9">Non-Colored Version (text-gray-1)</h3>
+            <div className="flex gap-4 items-center flex-wrap text-gray-1">
+              <div className="w-8 h-8"><TsNeutralLogo /></div>
+              <div className="w-8 h-8"><ReactLogo /></div>
+              <div className="w-8 h-8"><TailwindLogo /></div>
+              <div className="w-8 h-8"><FirebaseLogo /></div>
+              <div className="w-8 h-8"><FigmaLogo /></div>
+              <div className="w-8 h-8"><FramerLogo /></div>
+              <div className="w-8 h-8"><LottieLogo /></div>
+              <div className="w-8 h-8"><NextjsLogo /></div>
+              <div className="w-8 h-8"><WhopLogoBrandmarkOrangeLogo /></div>
+            </div>
+          </div>
+        </section>
 
         {/* Badge Component */}
         <section className="space-y-6 mb-16">

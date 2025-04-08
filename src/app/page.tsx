@@ -10,7 +10,9 @@ export default function Home() {
       <div className="max-w-xl mx-auto px-4 mt-[60px]">
         <Hero />
         <Works />
-        <Skills />
+        <div className=" flex-col hidden gap-8">
+          <Skills />
+        </div>
       </div>
     </main>
   );

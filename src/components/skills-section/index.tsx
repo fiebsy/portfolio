@@ -1,29 +1,20 @@
 import React from 'react';
-import SkillBar from './skill-bar';
-import TechStack from './tech-stack';
-
-const skillsData = [
-  { skill: 'product design', level: 5, years: '5y' },
-  { skill: 'engineering', level: 3, years: '1.5y' },
-];
+import SkillCategory from './skill-category';
+import { skillsData } from './skills-data';
 
 const Skills = () => {
   return (
     <section className="w-full py-16">
-      <h2 className="text-xl font-medium text-gray-5 mb-8">Skills</h2>
+      <h2 className="text-xl font-medium text-gray-5 hidden mb-8 ">Skills</h2>
       
-      <div className="max-w-md">
-        {skillsData.map((skill, index) => (
-          <SkillBar
+      <div className="w-full flex flex-col gap-8">
+        {skillsData.map((category, index) => (
+          <SkillCategory
             key={index}
-            skill={skill.skill}
-            level={skill.level}
-            years={skill.years}
+            category={category}
           />
         ))}
       </div>
-      
-      <TechStack />
     </section>
   );
 };
