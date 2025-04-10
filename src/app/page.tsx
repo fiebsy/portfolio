@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { SimpleSquircle } from '@/components/SimpleSquircle';
+import { SimpleSquircle, BorderedSquircle } from '@/components/SimpleSquircle';
 
 export default function Home() {
   return (
@@ -86,6 +86,64 @@ export default function Home() {
           >
             <span style={{ color: 'white', fontWeight: 'bold' }}>Danger Button</span>
           </SimpleSquircle>
+        </div>
+      </section>
+
+      {/* Simple Card Example */}
+      <section className="w-full max-w-4xl">
+        <h2 className="text-xl font-semibold mb-6 text-gray-18">Simple Bordered Cards</h2>
+        <div className="flex flex-wrap justify-center gap-6">
+          {/* Manual nesting example */}
+          <SimpleSquircle 
+            width={320}
+            height={180}
+            borderRadius={24}
+            color="#3b82f6" // Border color
+            padding="2px" // Border width
+          >
+            <SimpleSquircle 
+              width="full"
+              height="full"
+              borderRadius={22} // Slightly smaller to fit inside
+              color="white"
+              padding="1rem"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}
+            >
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Manual Border</h3>
+              <p style={{ color: '#4b5563', textAlign: 'center' }}>
+                Created with nested SimpleSquircles
+              </p>
+            </SimpleSquircle>
+          </SimpleSquircle>
+
+          {/* Using BorderedSquircle component */}
+          <BorderedSquircle
+            width={320}
+            height={180}
+            borderRadius={24}
+            borderColor="#9333ea" // Purple border
+            borderWidth={3} // Slightly thicker border
+            color="white"
+            padding="1rem"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.75rem'
+            }}
+          >
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Simplified Border</h3>
+            <p style={{ color: '#4b5563', textAlign: 'center' }}>
+              Using the BorderedSquircle component
+            </p>
+          </BorderedSquircle>
         </div>
       </section>
 

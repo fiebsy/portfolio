@@ -15,6 +15,13 @@ export interface SimpleSquircleProps {
   style?: React.CSSProperties;
 }
 
+export interface BorderedSquircleProps extends SimpleSquircleProps {
+  borderWidth?: string | number;
+  borderColor?: string;
+  borderRadius?: string | number;
+  innerBorderRadius?: string | number;
+}
+
 /**
  * Generates an SVG path for a squircle with iOS-style corner smoothing
  * @param width - Width of the squircle in pixels
@@ -211,5 +218,72 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
 );
 
 SimpleSquircle.displayName = 'SimpleSquircle';
+
+/**
+ * BorderedSquircle - A convenience component for creating a SimpleSquircle with a border.
+ * 
+ * This component nests two SimpleSquircle components to create a border effect,
+ * avoiding the complexity of manual nesting.
+ */
+export const BorderedSquircle = forwardRef<HTMLDivElement, BorderedSquircleProps>(
+  (
+    {
+      children,
+      className = '',
+      width = '200px',
+      height = '200px',
+      borderRadius = 20,
+      innerBorderRadius,
+      color = 'white',
+      borderColor = '#3b82f6',
+      borderWidth = '2px',
+      padding = '1rem',
+      as = 'div',
+      onClick,
+      style = {},
+      ...rest
+    },
+    ref
+  ) => {
+    // Calculate inner border radius if not provided
+    const calculatedInnerRadius = innerBorderRadius ?? 
+      (typeof borderRadius === 'number' 
+        ? Math.max(0, borderRadius - 2)
+        : `calc(${borderRadius} - 2px)`);
+    
+    // Calculate border width in pixels for padding
+    const borderWidthInPx = typeof borderWidth === 'number' 
+      ? borderWidth 
+      : parseInt(borderWidth, 10) || 2;
+    
+    return (
+      <SimpleSquircle
+        className={className}
+        width={width}
+        height={height}
+        borderRadius={borderRadius}
+        color={borderColor}
+        padding={`${borderWidthInPx}px`}
+        as={as}
+        onClick={onClick}
+        style={style}
+        {...rest}
+      >
+        <SimpleSquircle
+          ref={ref}
+          width="full"
+          height="full"
+          borderRadius={calculatedInnerRadius}
+          color={color}
+          padding={padding}
+        >
+          {children}
+        </SimpleSquircle>
+      </SimpleSquircle>
+    );
+  }
+);
+
+BorderedSquircle.displayName = 'BorderedSquircle';
 
 export default SimpleSquircle; 

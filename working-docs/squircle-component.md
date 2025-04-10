@@ -18,7 +18,7 @@ The component works by:
 ## Basic Usage
 
 ```jsx
-import { SimpleSquircle } from '@/components/SimpleSquircle';
+import { SimpleSquircle, BorderedSquircle } from '@/components/SimpleSquircle';
 
 // Basic usage with default values
 <SimpleSquircle>
@@ -35,6 +35,19 @@ import { SimpleSquircle } from '@/components/SimpleSquircle';
 >
   Customized squircle
 </SimpleSquircle>
+
+// Bordered squircle using the helper component
+<BorderedSquircle
+  width={300}
+  height={150}
+  borderRadius={30}
+  borderColor="#3b82f6"
+  borderWidth={2}
+  color="white"
+  padding="1rem"
+>
+  Squircle with a clean border
+</BorderedSquircle>
 ```
 
 ## Props
@@ -221,7 +234,32 @@ Since SimpleSquircle uses clip-path for the shape, standard borders don't work t
 </SimpleSquircle>
 ```
 
-### Method 2: Nested SimpleSquircles
+### Method 2: Using the BorderedSquircle component (Recommended)
+
+The easiest way to add a border is using the BorderedSquircle component:
+
+```jsx
+<BorderedSquircle
+  width="200px"
+  height="200px"
+  borderRadius={20}
+  borderColor="#3b82f6" 
+  borderWidth={2}
+  color="white"
+>
+  Content with a clean 2px border
+</BorderedSquircle>
+```
+
+The BorderedSquircle component supports these additional props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `borderColor` | string | '#3b82f6' | Color of the border |
+| `borderWidth` | string \| number | '2px' | Width of the border |
+| `innerBorderRadius` | string \| number | auto | Inner border radius (defaults to borderRadius - 2) |
+
+### Method 3: Manual nesting for complex borders
 
 ```jsx
 <SimpleSquircle 
@@ -242,7 +280,7 @@ Since SimpleSquircle uses clip-path for the shape, standard borders don't work t
 </SimpleSquircle>
 ```
 
-### Method 3: Background with inset for gradient borders
+### Method 4: Background with inset for gradient borders
 
 ```jsx
 <SimpleSquircle 
