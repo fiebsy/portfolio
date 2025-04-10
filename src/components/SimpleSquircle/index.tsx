@@ -13,6 +13,11 @@ export interface SimpleSquircleProps {
   as?: React.ElementType;
   onClick?: (e: React.MouseEvent) => void;
   style?: React.CSSProperties;
+  debug?: boolean;
+  border?: {
+    color: string;
+    width: number | string;
+  };
 }
 
 export interface BorderedSquircleProps extends SimpleSquircleProps {
@@ -157,17 +162,51 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       as: Component = 'div',
       onClick,
       style = {},
+      debug = false,
+      border,
       ...rest
     },
     ref
   ) => {
     // Client-side only state to fix hydration issues
     const [isClient, setIsClient] = useState(false);
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+    const localRef = React.useRef<HTMLDivElement>(null);
+    const combinedRef = ref ? 
+      (node: HTMLDivElement) => {
+        (ref as React.MutableRefObject<HTMLDivElement>).current = node;
+        localRef.current = node;
+      } : localRef;
     
     // Only run on client-side to avoid hydration mismatch
     useEffect(() => {
       setIsClient(true);
-    }, []);
+      
+      // If debug is enabled, report dimensions
+      if (debug && localRef.current) {
+        const reportDimensions = () => {
+          const rect = localRef.current?.getBoundingClientRect();
+          if (rect && localRef.current) {
+            setDimensions({
+              width: rect.width,
+              height: rect.height
+            });
+            console.log('SimpleSquircle Debug:', {
+              requestedWidth: width,
+              requestedHeight: height,
+              actualWidth: rect.width,
+              actualHeight: rect.height,
+              computedStyle: window.getComputedStyle(localRef.current),
+              element: localRef.current
+            });
+          }
+        };
+        
+        reportDimensions();
+        window.addEventListener('resize', reportDimensions);
+        return () => window.removeEventListener('resize', reportDimensions);
+      }
+    }, [debug, width, height]);
     
     // Convert dimensions to pixel values for path generation
     const widthInPx = typeof width === 'number' ? width : parseInt(width, 10) || 200;
@@ -182,6 +221,7 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
     // Create component styles
     const squircleStyles: React.CSSProperties = {
       display: 'flex',
+      flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
       position: 'relative',
@@ -203,14 +243,38 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       squircleStyles.borderRadius = `${radiusInPx}px`;
     }
 
+    // Apply border if specified
+    if (border) {
+      squircleStyles.boxShadow = `0 0 0 ${typeof border.width === 'number' ? 
+        `${border.width}px` : border.width} ${border.color}`;
+    }
+
+    // Debug overlay
+    const debugOverlay = debug && isClient ? (
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        background: 'rgba(0,0,0,0.7)',
+        color: 'white',
+        padding: '4px 8px',
+        fontSize: '10px',
+        borderTopLeftRadius: '4px',
+        zIndex: 1000
+      }}>
+        {dimensions.width.toFixed(0)}×{dimensions.height.toFixed(0)}px
+      </div>
+    ) : null;
+
     return (
       <Component
-        ref={ref}
+        ref={combinedRef}
         className={className}
         style={squircleStyles}
         onClick={onClick}
         {...rest}
       >
+        {debugOverlay}
         {children}
       </Component>
     );

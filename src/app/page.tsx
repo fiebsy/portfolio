@@ -8,6 +8,73 @@ export default function Home() {
     <main className="min-h-screen bg-white flex flex-col items-center p-8 gap-12">
       <h1 className="text-3xl font-semibold mb-4 text-gray-18">SimpleSquircle Showcase</h1>
       
+      {/* Debug Test Section */}
+      <section className="w-full max-w-4xl border border-gray-200 p-4 rounded-lg">
+        <h2 className="text-xl font-semibold mb-6 text-gray-18">Debug Test</h2>
+        <div className="w-full">
+          {/* Outer container with border */}
+          <SimpleSquircle 
+            width="full"
+            height="auto"
+            borderRadius={24}
+            color="#3b82f6"
+            padding="2px"
+            debug={true}
+            style={{ minHeight: '180px' }}
+          >
+            {/* Inner container */}
+            <SimpleSquircle 
+              width="full"
+              height="full"
+              borderRadius={22}
+              color="white" 
+              padding="1.5rem"
+              debug={true}
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}
+            >
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Nested Container Test</h3>
+              <p style={{ color: '#4b5563', textAlign: 'center' }}>
+                Testing nested responsive containers
+              </p>
+            </SimpleSquircle>
+          </SimpleSquircle>
+        </div>
+      </section>
+      
+      {/* Direct Border Test */}
+      <section className="w-full max-w-4xl border border-gray-200 p-4 rounded-lg">
+        <h2 className="text-xl font-semibold mb-6 text-gray-18">Border Prop Test</h2>
+        <div className="w-full">
+          <SimpleSquircle 
+            width="full"
+            height="auto"
+            borderRadius={24}
+            color="white"
+            padding="1.5rem"
+            debug={true}
+            border={{
+              color: '#3b82f6',
+              width: 2
+            }}
+            style={{
+              minHeight: '180px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.75rem'
+            }}
+          >
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Simplified Border</h3>
+            <p style={{ color: '#4b5563', textAlign: 'center' }}>
+              Using the new border prop instead of nesting
+            </p>
+          </SimpleSquircle>
+        </div>
+      </section>
+
       {/* Buttons Section */}
       <section className="w-full max-w-4xl">
         <h2 className="text-xl font-semibold mb-6 text-gray-18">Buttons</h2>
