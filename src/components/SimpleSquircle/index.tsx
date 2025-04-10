@@ -174,13 +174,13 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
     
     // Create component styles
     const squircleStyles: React.CSSProperties = {
-      display: 'inline-flex',
+      display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       position: 'relative',
       overflow: 'hidden',
       width: width === 'full' ? '100%' : (typeof width === 'number' ? `${width}px` : width),
-      height: typeof height === 'number' ? `${height}px` : height,
+      height: height === 'full' ? '100%' : (typeof height === 'number' ? `${height}px` : height),
       padding,
       backgroundColor: color,
       color: '#171717',

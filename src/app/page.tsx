@@ -19,7 +19,12 @@ export default function Home() {
             borderRadius={12}
             color="#3b82f6"
             padding="0 1.5rem"
-            style={{ cursor: 'pointer' }}
+            style={{ 
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
             onClick={() => alert('Primary button clicked!')}
           >
             <span style={{ color: 'white', fontWeight: 'bold' }}>Primary Button</span>
@@ -32,7 +37,12 @@ export default function Home() {
             borderRadius={12}
             color="#f3f4f6"
             padding="0 1.5rem"
-            style={{ cursor: 'pointer' }}
+            style={{ 
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
             onClick={() => alert('Secondary button clicked!')}
           >
             <span style={{ color: '#4b5563', fontWeight: 'bold' }}>Secondary Button</span>
@@ -48,7 +58,10 @@ export default function Home() {
             style={{ 
               cursor: 'pointer',
               boxShadow: '0 0 0 2px #3b82f6',
-              backgroundColor: 'transparent'
+              backgroundColor: 'transparent',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
             }}
             onClick={() => alert('Ghost button clicked!')}
           >
@@ -64,7 +77,10 @@ export default function Home() {
             padding="0 1.5rem"
             style={{ 
               cursor: 'pointer',
-              boxShadow: '0 0 0 2px #b91c1c'
+              boxShadow: '0 0 0 2px #b91c1c',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
             }}
             onClick={() => alert('Danger button clicked!')}
           >
@@ -88,20 +104,20 @@ export default function Home() {
           >
             <SimpleSquircle 
               width="full"
-              height="100%"
+              height="full"
               borderRadius={24}
               color="white"
               padding="1.5rem"
               style={{ 
+                display: 'flex',
+                flexDirection: 'column',
                 minHeight: '220px',
                 boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
               }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ fontSize: '2rem' }}>✨</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Feature Card</h3>
-                <p style={{ color: '#4b5563' }}>This card showcases a feature with iOS-style rounded corners.</p>
-              </div>
+              <div style={{ fontSize: '2rem' }}>✨</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Feature Card</h3>
+              <p style={{ color: '#4b5563' }}>This card showcases a feature with iOS-style rounded corners.</p>
             </SimpleSquircle>
           </SimpleSquircle>
 
@@ -118,17 +134,19 @@ export default function Home() {
           >
             <SimpleSquircle 
               width="full"
-              height="100%"
+              height="full"
               borderRadius={24}
               color="#ebf5ff"
               padding="1.5rem"
-              style={{ minHeight: '220px' }}
+              style={{ 
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '220px' 
+              }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ fontSize: '2rem' }}>ℹ️</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Info Card</h3>
-                <p style={{ color: '#4b5563' }}>Important information displayed with smooth iOS-style corners.</p>
-              </div>
+              <div style={{ fontSize: '2rem' }}>ℹ️</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Info Card</h3>
+              <p style={{ color: '#4b5563' }}>Important information displayed with smooth iOS-style corners.</p>
             </SimpleSquircle>
           </SimpleSquircle>
 
@@ -139,13 +157,15 @@ export default function Home() {
             borderRadius={24}
             color="#ecfdf5"
             padding="1.5rem"
-            style={{ minHeight: '220px' }}
+            style={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: '220px' 
+            }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ fontSize: '2rem' }}>✅</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Success Card</h3>
-              <p style={{ color: '#4b5563' }}>Operation completed successfully with beautiful corners.</p>
-            </div>
+            <div style={{ fontSize: '2rem' }}>✅</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Success Card</h3>
+            <p style={{ color: '#4b5563' }}>Operation completed successfully with beautiful corners.</p>
           </SimpleSquircle>
 
           {/* Warning Card */}
@@ -155,13 +175,15 @@ export default function Home() {
             borderRadius={24}
             color="#fffbeb"
             padding="1.5rem"
-            style={{ minHeight: '220px' }}
+            style={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: '220px' 
+            }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ fontSize: '2rem' }}>⚠️</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Warning Card</h3>
-              <p style={{ color: '#4b5563' }}>Please be cautious with this information or action.</p>
-            </div>
+            <div style={{ fontSize: '2rem' }}>⚠️</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Warning Card</h3>
+            <p style={{ color: '#4b5563' }}>Please be cautious with this information or action.</p>
           </SimpleSquircle>
         </div>
       </section>

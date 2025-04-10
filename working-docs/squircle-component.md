@@ -13,6 +13,7 @@ The component works by:
 1. Generating an SVG path for the squircle shape using the superellipse formula
 2. Applying this path as a clip-path to a standard div container
 3. Handling hydration issues by implementing client-side rendering for the complex path styles while falling back to standard border-radius during server rendering
+4. Functioning as a flex container to easily manage content layout
 
 ## Basic Usage
 
@@ -41,7 +42,7 @@ import { SimpleSquircle } from '@/components/SimpleSquircle';
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `width` | string \| number | '200px' | Width of the container. Use 'full' for 100% width |
-| `height` | string \| number | '200px' | Height of the container |
+| `height` | string \| number | '200px' | Height of the container. Use 'full' for 100% height |
 | `borderRadius` | string \| number | 20 | Corner radius in pixels |
 | `color` | string | '#b8dd23' | Background color |
 | `padding` | string | '1rem' | Internal padding |
@@ -49,6 +50,62 @@ import { SimpleSquircle } from '@/components/SimpleSquircle';
 | `as` | React.ElementType | 'div' | Element type to render |
 | `style` | React.CSSProperties | {} | Additional inline styles |
 | `onClick` | function | undefined | Click handler |
+
+## Layout Tips
+
+SimpleSquircle functions as a flex container by default. Here are some layout tips:
+
+### Basic Layout Control
+
+```jsx
+// Vertical stack (default)
+<SimpleSquircle 
+  width="full"
+  height="auto"
+  style={{ 
+    flexDirection: 'column',
+    gap: '1rem'
+  }}
+>
+  <div>Item 1</div>
+  <div>Item 2</div>
+</SimpleSquircle>
+
+// Horizontal arrangement
+<SimpleSquircle 
+  width="full"
+  height="auto"
+  style={{ 
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  }}
+>
+  <div>Left</div>
+  <div>Right</div>
+</SimpleSquircle>
+```
+
+### Nesting with Proper Layout
+
+When nesting SimpleSquircle components (e.g., for borders), set the inner component to use `height="full"` and manage layout with style props:
+
+```jsx
+<SimpleSquircle width="full" height="auto" color="#3b82f6" padding="2px">
+  <SimpleSquircle 
+    width="full" 
+    height="full" 
+    color="white"
+    style={{ 
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.5rem'
+    }}
+  >
+    <h3>Content</h3>
+    <p>More content here</p>
+  </SimpleSquircle>
+</SimpleSquircle>
+```
 
 ## Using SimpleSquircle for Buttons
 
