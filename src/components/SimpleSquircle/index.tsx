@@ -256,6 +256,15 @@ export const BorderedSquircle = forwardRef<HTMLDivElement, BorderedSquircleProps
       ? borderWidth 
       : parseInt(borderWidth, 10) || 2;
     
+    // Full width container styles to ensure proper filling
+    const containerStyle: React.CSSProperties = {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      height: '100%',
+      ...style
+    };
+    
     return (
       <SimpleSquircle
         className={className}
@@ -276,6 +285,7 @@ export const BorderedSquircle = forwardRef<HTMLDivElement, BorderedSquircleProps
           borderRadius={calculatedInnerRadius}
           color={color}
           padding={padding}
+          style={containerStyle}
         >
           {children}
         </SimpleSquircle>

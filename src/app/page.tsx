@@ -132,8 +132,6 @@ export default function Home() {
             color="white"
             padding="1rem"
             style={{
-              display: 'flex',
-              flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
               gap: '0.75rem'
@@ -142,6 +140,33 @@ export default function Home() {
             <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Simplified Border</h3>
             <p style={{ color: '#4b5563', textAlign: 'center' }}>
               Using the BorderedSquircle component
+            </p>
+          </BorderedSquircle>
+        </div>
+      </section>
+
+      {/* Responsive Bordered Card Example */}
+      <section className="w-full max-w-4xl">
+        <h2 className="text-xl font-semibold mb-6 text-gray-18">Responsive Bordered Card</h2>
+        <div className="w-full">
+          <BorderedSquircle
+            width="full"
+            height="auto"
+            borderRadius={24}
+            borderColor="#10b981" // Green border
+            borderWidth={2}
+            color="white"
+            padding="1.5rem"
+            style={{
+              minHeight: '180px',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Full-Width Card</h3>
+            <p style={{ color: '#4b5563', textAlign: 'center', maxWidth: '600px', margin: '1rem auto 0' }}>
+              This card stretches to fill the available width. The BorderedSquircle component properly adapts to 
+              responsive dimensions while maintaining perfect border appearance.
             </p>
           </BorderedSquircle>
         </div>

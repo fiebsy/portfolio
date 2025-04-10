@@ -259,6 +259,31 @@ The BorderedSquircle component supports these additional props:
 | `borderWidth` | string \| number | '2px' | Width of the border |
 | `innerBorderRadius` | string \| number | auto | Inner border radius (defaults to borderRadius - 2) |
 
+#### Responsive BorderedSquircle
+
+The BorderedSquircle component fully supports responsive layouts:
+
+```jsx
+// Full-width responsive card with border
+<BorderedSquircle
+  width="full"
+  height="auto"
+  borderRadius={24}
+  borderColor="#10b981"
+  borderWidth={2}
+  color="white"
+  padding="1.5rem"
+  style={{
+    minHeight: '180px',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }}
+>
+  <h3>Responsive Card</h3>
+  <p>Content that adapts to the container width</p>
+</BorderedSquircle>
+```
+
 ### Method 3: Manual nesting for complex borders
 
 ```jsx
@@ -325,7 +350,7 @@ The BorderedSquircle component supports these additional props:
 ```jsx
 <SimpleSquircle 
   className="flex flex-col gap-4 text-slate-800"
-  width="100%"
+  width="full"
   height="auto"
   borderRadius={20}
   color="#f9fafb"
