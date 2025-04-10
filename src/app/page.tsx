@@ -79,7 +79,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Feature Card */}
           <SimpleSquircle 
-            width="100%"
+            width="full"
             height="auto"
             borderRadius={26}
             color="#3b82f6"
@@ -87,7 +87,7 @@ export default function Home() {
             style={{ minHeight: '224px' }}
           >
             <SimpleSquircle 
-              width="100%"
+              width="full"
               height="100%"
               borderRadius={24}
               color="white"
@@ -107,7 +107,7 @@ export default function Home() {
 
           {/* Info Card */}
           <SimpleSquircle 
-            width="100%"
+            width="full"
             height="auto"
             borderRadius={26}
             padding="2px"
@@ -117,7 +117,7 @@ export default function Home() {
             }}
           >
             <SimpleSquircle 
-              width="100%"
+              width="full"
               height="100%"
               borderRadius={24}
               color="#ebf5ff"
@@ -134,7 +134,7 @@ export default function Home() {
 
           {/* Success Card */}
           <SimpleSquircle 
-            width="100%"
+            width="full"
             height="auto"
             borderRadius={24}
             color="#ecfdf5"
@@ -150,7 +150,7 @@ export default function Home() {
 
           {/* Warning Card */}
           <SimpleSquircle 
-            width="100%"
+            width="full"
             height="auto"
             borderRadius={24}
             color="#fffbeb"

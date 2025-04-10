@@ -179,7 +179,7 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       alignItems: 'center',
       position: 'relative',
       overflow: 'hidden',
-      width: typeof width === 'number' ? `${width}px` : width,
+      width: width === 'full' ? '100%' : (typeof width === 'number' ? `${width}px` : width),
       height: typeof height === 'number' ? `${height}px` : height,
       padding,
       backgroundColor: color,

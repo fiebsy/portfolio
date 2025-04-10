@@ -40,7 +40,7 @@ import { SimpleSquircle } from '@/components/SimpleSquircle';
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `width` | string \| number | '200px' | Width of the container |
+| `width` | string \| number | '200px' | Width of the container. Use 'full' for 100% width |
 | `height` | string \| number | '200px' | Height of the container |
 | `borderRadius` | string \| number | 20 | Corner radius in pixels |
 | `color` | string | '#b8dd23' | Background color |
@@ -215,7 +215,7 @@ Since SimpleSquircle uses clip-path for the shape, standard borders don't work t
 
 ```jsx
 <SimpleSquircle 
-  width="100%"
+  width="full"
   height="auto"
   borderRadius={20}
   color="#f9fafb"
