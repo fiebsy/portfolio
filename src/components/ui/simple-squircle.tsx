@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useState, useRef, useCallback } from 'react';
 
 export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
@@ -14,12 +14,12 @@ export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement
   padding?: string | number;
   style?: React.CSSProperties;
   
-  // Shape props
+  // Shape props - Default to level 1 (most round)
   roundnessLevel?: 1 | 2 | 3 | 4; // 1=most round, 4=least round
   
   // Border radius props
-  borderRadius?: string | number;  // Default is now 42px
-  cornerSmoothing?: 'ios' | 'medium' | 'high' | number; // iOS = 5, medium = 4, high = 6, custom = any number from 5-8
+  borderRadius?: string | number;  // Only used if roundnessLevel is not provided
+  cornerSmoothing?: 'ios' | 'medium' | 'high' | number; // Only used if roundnessLevel is not provided
   
   // Per-corner border radius (optional)
   borderRadiusTopLeft?: number;
@@ -27,28 +27,25 @@ export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement
   borderRadiusBottomRight?: number;
   borderRadiusBottomLeft?: number;
   
-  // Border props (Restored for solid borders)
+  // Border props (for solid borders)
   border?: boolean | number; // true = 2px border, or specify width directly
   borderColor?: string;
   borderStyle?: 'solid' | 'dashed' | 'dotted';
   
-  // Per-side borders (REMOVED - Must use Tailwind for non-solid)
-  // borderTop?: number;
-  // borderRight?: number;
-  // borderBottom?: number;
-  // borderLeft?: number;
-  
-  // Hover effect properties (Restored for solid borders)
+  // Hover effect properties (for solid borders)
   hoverEffect?: boolean | 'border'; // true or 'border' enables the hover border effect
   hoverOpacity?: number; // 0-100, defaults to 100
   initialOpacity?: number; // 0-100, defaults to 0
   hoverTransition?: string; // defaults to '0.3s ease'
   
   // Advanced rendering options
-  pointsPerCorner?: number; // Controls number of points used to draw curves (default: 45)
+  pointsPerCorner?: number; // Controls number of points used to draw curves
   
   // Component props
   as?: React.ElementType;
+  
+  // Debug mode
+  debug?: boolean;
 }
 
 // Define roundness levels (1=most round, 4=least round)
@@ -68,29 +65,19 @@ const ROUNDNESS_LEVELS = {
   // Level 3: Slightly geometric
   3: {
     smoothing: 6.5,
-    borderRadius: 50,
-    pointsPerCorner: 48
+    borderRadius: 55,
+    pointsPerCorner: 55
   },
   // Level 4: Most geometric/squared, least round
   4: {
-    smoothing: 7.5,
-    borderRadius: 70,
-    pointsPerCorner: 50
+    smoothing: 7.8,
+    borderRadius: 65,
+    pointsPerCorner: 70
   }
 };
 
 /**
  * Generates an SVG path for a squircle with iOS-style corner smoothing
- * @param width - Width of the squircle in pixels
- * @param height - Height of the squircle in pixels 
- * @param radius - Corner radius in pixels (default, used for all corners unless overridden)
- * @param radiusTopLeft - Top-left corner radius
- * @param radiusTopRight - Top-right corner radius
- * @param radiusBottomRight - Bottom-right corner radius
- * @param radiusBottomLeft - Bottom-left corner radius
- * @param exponent - Exponent to use for the squircle formula (higher = sharper corners)
- * @param pointsPerCorner - Number of points to use per corner (default: 12)
- * @returns SVG path string
  */
 const generateSquirclePath = (
   width: number, 
@@ -168,7 +155,6 @@ const generateSquirclePath = (
   };
   
   // Build the path using corner points
-  // We'll use L commands instead of many tiny steps, with strategic points on the corners
   const path = [
     // Start at top left, after the corner curve
     `M ${round(rTL)},0`,
@@ -250,8 +236,8 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       className = '',
       width = 'auto',
       height = 'auto',
-      borderRadius = 42,
-      cornerSmoothing = 5.5,
+      // We use object rest destructuring to ignore these parameters
+      // since we get values from roundnessLevel instead
       borderRadiusTopLeft,
       borderRadiusTopRight,
       borderRadiusBottomRight,
@@ -265,211 +251,308 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       hoverOpacity = 100,
       initialOpacity = 0,
       hoverTransition = '0.3s ease',
-      pointsPerCorner = 45,
-      roundnessLevel,
+      roundnessLevel = 1, // Default to level 1 (most round)
       as: Component = 'div',
+      debug = false,
+      // Collect unused props without naming them
       ...rest
     },
     ref
   ) => {
+    // Border settings
     const hasBorder = border !== false;
     const borderWidth = typeof border === 'number' ? border : (border ? 2 : 0);
     const useHoverEffect = hoverEffect !== false;
-    const hoverBorderOpacity = hoverOpacity;
-    const initialBorderOpacity = initialOpacity;
-
+    
     // Apply roundness level settings if provided
-    let finalBorderRadius = borderRadius;
-    let finalCornerSmoothing = cornerSmoothing;
-    let finalPointsPerCorner = pointsPerCorner;
-
-    if (roundnessLevel && ROUNDNESS_LEVELS[roundnessLevel]) {
-      finalBorderRadius = ROUNDNESS_LEVELS[roundnessLevel].borderRadius;
-      finalCornerSmoothing = ROUNDNESS_LEVELS[roundnessLevel].smoothing;
-      finalPointsPerCorner = ROUNDNESS_LEVELS[roundnessLevel].pointsPerCorner;
-    }
-
-    const getSmoothingExponent = (): number => {
-      if (typeof finalCornerSmoothing === 'number') return finalCornerSmoothing;
-      switch (finalCornerSmoothing) {
-        case 'ios': return 5;
-        case 'medium': return 5.5;
-        case 'high': return 6.5;
-        default: return 5.5;
-      }
-    };
-    const exponent = getSmoothingExponent();
-
-    const [isClient, setIsClient] = useState(false);
+    const levelSettings = ROUNDNESS_LEVELS[roundnessLevel] || ROUNDNESS_LEVELS[1];
+    const finalBorderRadius = levelSettings.borderRadius;
+    const finalCornerSmoothing = levelSettings.smoothing;
+    const finalPointsPerCorner = levelSettings.pointsPerCorner;
+    
+    // State for dimensions and hover
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [isHovered, setIsHovered] = useState(false);
-    const localRef = React.useRef<HTMLDivElement>(null);
-    const combinedRef = ref ?
-      (node: HTMLDivElement | null) => {
-         if (node) {
-            if (typeof ref === 'function') { ref(node); }
-            else { (ref as React.MutableRefObject<HTMLDivElement | null>).current = node; }
-            (localRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-         }
-      } : localRef;
-
-    const hasFixedWidth = typeof width === 'number' || (typeof width === 'string' && /^\d+(\.\d+)?(px)?$/.test(width));
-    const hasFixedHeight = typeof height === 'number' || (typeof height === 'string' && /^\d+(\.\d+)?(px)?$/.test(height));
-    const fixedWidth = hasFixedWidth ? (typeof width === 'number' ? width : parseInt(width as string, 10) || 200) : 0;
-    const fixedHeight = hasFixedHeight ? (typeof height === 'number' ? height : parseInt(height as string, 10) || 200) : 0;
-
-    useEffect(() => {
-      setIsClient(true);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+    
+    // Handle ref forwarding
+    const combinedRef = useMergedRef(ref, containerRef);
+    
+    // Function to handle dimensions updates
+    const updateDimensions = useCallback(() => {
+      if (!wrapperRef.current) return;
       
-      let resizeObserver: ResizeObserver | null = null;
-      const currentElement = localRef.current;
-      const handleMouseEnterEvent = () => setIsHovered(true);
-      const handleMouseLeaveEvent = () => setIsHovered(false);
-
-      if (currentElement) {
-        const updateDimensions = () => {
-            const rect = currentElement.getBoundingClientRect();
-            setDimensions({ width: hasFixedWidth ? fixedWidth : rect.width, height: hasFixedHeight ? fixedHeight : rect.height });
-        };
-        updateDimensions();
-        resizeObserver = new ResizeObserver(updateDimensions);
-        resizeObserver.observe(currentElement);
-
+      const rect = wrapperRef.current.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setDimensions({
+          width: rect.width,
+          height: rect.height
+        });
+      }
+    }, []);
+    
+    // Set up resize observer and event handlers
+    useEffect(() => {
+      const resizeObserver = new ResizeObserver(() => {
+        // Use RAF to debounce and ensure rendering is complete
+        requestAnimationFrame(updateDimensions);
+      });
+      
+      if (wrapperRef.current) {
+        resizeObserver.observe(wrapperRef.current);
+        // Use a slight delay for initial measurement to ensure the DOM is fully rendered
+        setTimeout(updateDimensions, 10);
+        
+        // Add hover event listeners if needed
         if (useHoverEffect && borderStyle === 'solid') {
-          currentElement.addEventListener('mouseenter', handleMouseEnterEvent);
-          currentElement.addEventListener('mouseleave', handleMouseLeaveEvent);
+          const handleMouseEnter = () => setIsHovered(true);
+          const handleMouseLeave = () => setIsHovered(false);
+          
+          containerRef.current?.addEventListener('mouseenter', handleMouseEnter);
+          containerRef.current?.addEventListener('mouseleave', handleMouseLeave);
+          
+          return () => {
+            containerRef.current?.removeEventListener('mouseenter', handleMouseEnter);
+            containerRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+            resizeObserver.disconnect();
+          };
         }
       }
+      
       return () => {
-          if (currentElement && resizeObserver) { resizeObserver.unobserve(currentElement); }
-          if (resizeObserver) { resizeObserver.disconnect(); }
-          if (currentElement && useHoverEffect && borderStyle === 'solid') {
-            currentElement.removeEventListener('mouseenter', handleMouseEnterEvent);
-            currentElement.removeEventListener('mouseleave', handleMouseLeaveEvent);
-          }
-        };
-    }, [width, height, hasFixedWidth, hasFixedHeight, fixedWidth, fixedHeight, useHoverEffect, borderStyle]);
-
-    const widthInPx = hasFixedWidth ? fixedWidth : (dimensions.width > 0 ? dimensions.width : 200);
-    const heightInPx = hasFixedHeight ? fixedHeight : (dimensions.height > 0 ? dimensions.height : 200);
-    const radiusInPx = typeof finalBorderRadius === 'number' ? finalBorderRadius : parseInt(finalBorderRadius.toString(), 10) || 20;
-    const squirclePath = isClient && widthInPx > 0 && heightInPx > 0 ?
-      generateSquirclePath(widthInPx, heightInPx, radiusInPx, borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomRight, borderRadiusBottomLeft, exponent, finalPointsPerCorner)
+        resizeObserver.disconnect();
+      };
+    }, [updateDimensions, useHoverEffect, borderStyle]);
+    
+    // Calculate paths based on current dimensions
+    const widthInPx = dimensions.width > 0 ? dimensions.width : 0;
+    const heightInPx = dimensions.height > 0 ? dimensions.height : 0;
+    
+    // Only generate paths if we have valid dimensions
+    const outerSquirclePath = widthInPx > 0 && heightInPx > 0 
+      ? generateSquirclePath(
+          widthInPx, 
+          heightInPx, 
+          finalBorderRadius,
+          borderRadiusTopLeft,
+          borderRadiusTopRight,
+          borderRadiusBottomRight,
+          borderRadiusBottomLeft,
+          finalCornerSmoothing,
+          finalPointsPerCorner
+        )
       : '';
-    const paddingValue = typeof padding === 'number' ? `${padding}px` : padding;
-
+    
+    // Inner path for bordered squircle
+    const innerSquirclePath = widthInPx > 0 && heightInPx > 0 && hasBorder && borderWidth > 0 && borderStyle === 'solid'
+      ? generateSquirclePath(
+          widthInPx - borderWidth * 2,
+          heightInPx - borderWidth * 2,
+          Math.max(0, finalBorderRadius - borderWidth),
+          borderRadiusTopLeft !== undefined ? Math.max(0, borderRadiusTopLeft - borderWidth) : undefined,
+          borderRadiusTopRight !== undefined ? Math.max(0, borderRadiusTopRight - borderWidth) : undefined,
+          borderRadiusBottomRight !== undefined ? Math.max(0, borderRadiusBottomRight - borderWidth) : undefined,
+          borderRadiusBottomLeft !== undefined ? Math.max(0, borderRadiusBottomLeft - borderWidth) : undefined,
+          finalCornerSmoothing,
+          finalPointsPerCorner
+        )
+      : '';
+    
+    // Function to get color with opacity for hover effects
     const getColorWithOpacity = (color: string, opacity: number): string => {
-      if (!/^#[0-9a-fA-F]{6}$/.test(color)) { return `rgba(0, 0, 0, ${opacity / 100})`; }
+      if (!/^#[0-9a-fA-F]{6}$/.test(color)) return `rgba(0, 0, 0, ${opacity / 100})`;
       const r = parseInt(color.slice(1, 3), 16);
       const g = parseInt(color.slice(3, 5), 16);
       const b = parseInt(color.slice(5, 7), 16);
       return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
     };
-
-    // New double-layer approach base styles
-    const baseOuterStyle: React.CSSProperties = {
-      position: 'relative',
-      overflow: 'hidden',
-      width: width === 'full' ? '100%' : (hasFixedWidth ? `${fixedWidth}px` : width),
-      height: height === 'full' ? '100%' : (hasFixedHeight ? `${fixedHeight}px` : height),
-      boxSizing: 'border-box',
-      ...(isClient && squirclePath ? {
-        clipPath: `path('${squirclePath}')`,
-        WebkitClipPath: `path('${squirclePath}')`,
-        // Also add mask-image as primary method for Safari and other browsers
-        WebkitMaskImage: squirclePath ? `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='${widthInPx}' height='${heightInPx}'><path d='${squirclePath}' fill='black'/></svg>")` : 'none',
-        maskImage: squirclePath ? `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='${widthInPx}' height='${heightInPx}'><path d='${squirclePath}' fill='black'/></svg>")` : 'none',
-      } : {
-        borderRadius: `${radiusInPx}px`,
+    
+    // Set up dimension styles for width/height
+    const dimensionStyles: React.CSSProperties = {
+      width: width === 'full' ? '100%' : (typeof width === 'number' ? `${width}px` : width),
+      // Only set fixed height if not auto
+      ...(height !== 'auto' && {
+        height: height === 'full' ? '100%' : (typeof height === 'number' ? `${height}px` : height)
       }),
-      // Force hardware acceleration in all browsers
-      transform: 'translateZ(0)',
     };
     
-    // --- Conditional Rendering --- 
-
-    // CASE 1: Solid border - Use nested elements
+    // Convert padding string/number to CSS value
+    const paddingValue = typeof padding === 'number' ? `${padding}px` : padding;
+    
+    // Wrapper styles for measurement
+    const wrapperStyles: React.CSSProperties = {
+      position: 'relative',
+      width: '100%',
+      // Don't enforce height: 100% when using auto height
+      ...(height !== 'auto' ? { height: '100%' } : {}),
+      display: height === 'auto' ? 'inline-block' : 'block',
+      ...dimensionStyles,
+    };
+    
+    // Base styles for the container
+    const containerStyles: React.CSSProperties = {
+      position: height === 'auto' ? 'relative' : 'absolute',
+      ...(height !== 'auto' && { top: 0, left: 0 }),
+      width: '100%',
+      ...(height !== 'auto' && { height: '100%' }),
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
+      ...style,
+    };
+    
+    // Add clip path if available
+    if (outerSquirclePath) {
+      containerStyles.clipPath = `path('${outerSquirclePath}')`;
+      containerStyles.WebkitClipPath = `path('${outerSquirclePath}')`;
+    } else {
+      containerStyles.borderRadius = `${finalBorderRadius}px`;
+    }
+    
+    // Add debug outline
+    if (debug) {
+      containerStyles.outline = '1px dashed red';
+    }
+    
+    // For solid borders, add background color
     if (borderStyle === 'solid' && hasBorder && borderWidth > 0) {
-      const innerRadius = Math.max(0, radiusInPx - borderWidth);
-      
-      // Outer border element (with clip-path)
-      const outerStyles: React.CSSProperties = {
-        ...baseOuterStyle,
-        backgroundColor: useHoverEffect ? 
-          getColorWithOpacity(borderColor, isHovered ? hoverBorderOpacity : initialBorderOpacity) : 
-          borderColor
-      };
+      containerStyles.backgroundColor = useHoverEffect
+        ? getColorWithOpacity(borderColor, isHovered ? hoverOpacity : initialOpacity)
+        : borderColor;
       
       if (useHoverEffect) {
-        outerStyles.transition = `background-color ${hoverTransition}`;
+        containerStyles.transition = `background-color ${hoverTransition}`;
       }
       
-      // Inner content area (no clip-path, masked by parent)
-      const innerStyles: React.CSSProperties = {
-        position: 'absolute',
-        top: `${borderWidth}px`,
-        left: `${borderWidth}px`,
-        right: `${borderWidth}px`,
-        bottom: `${borderWidth}px`, 
-        boxSizing: 'border-box',
+      // Content styles for bordered version
+      const contentStyles: React.CSSProperties = {
+        position: height === 'auto' ? 'relative' : 'absolute',
+        ...(height !== 'auto' && { top: borderWidth, left: borderWidth, right: borderWidth, bottom: borderWidth }),
+        ...(height === 'auto' && { margin: borderWidth }),
         padding: paddingValue,
-        ...style,
-        borderRadius: `${innerRadius}px`, // Fallback for non-clip-path browsers
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        flex: 1,
       };
-
+      
+      // Add inner clip path if available
+      if (innerSquirclePath) {
+        contentStyles.clipPath = `path('${innerSquirclePath}')`;
+        contentStyles.WebkitClipPath = `path('${innerSquirclePath}')`;
+      } else {
+        contentStyles.borderRadius = `${Math.max(0, finalBorderRadius - borderWidth)}px`;
+      }
+      
+      if (debug) {
+        contentStyles.outline = '1px dotted blue';
+      }
+      
       return (
         <Component
           ref={combinedRef}
-          style={outerStyles}
+          style={wrapperStyles}
+          data-roundness-level={roundnessLevel}
+          data-dimension-width={widthInPx}
+          data-dimension-height={heightInPx}
           {...rest}
         >
-          <div className={className} style={innerStyles}>
-            {children}
+          <div 
+            ref={wrapperRef} 
+            style={{ 
+              position: 'relative', 
+              width: '100%', 
+              display: height === 'auto' ? 'inline-block' : 'block',
+              ...(height !== 'auto' ? { height: '100%' } : {})
+            }}
+          >
+            <div style={containerStyles}>
+              <div ref={contentRef} className={className} style={contentStyles}>
+                {children}
+                {debug && (
+                  <div style={{ position: 'absolute', bottom: 2, right: 2, fontSize: '8px', color: 'red', background: 'rgba(255,255,255,0.7)', padding: '1px 3px' }}>
+                    {widthInPx}x{heightInPx}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </Component>
       );
     }
-
-    // CASE 2: No border, dashed, or dotted - Use double-layer approach
+    
+    // For no border or non-solid borders
     else {
-      // Outer shape container (with clip-path)
-      const outerStyles: React.CSSProperties = {
-        ...baseOuterStyle,
-        ...style,
-      };
+      // Add border if using dashed/dotted
+      if (hasBorder && (borderStyle === 'dashed' || borderStyle === 'dotted')) {
+        containerStyles.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+      }
       
-      // Inner content container - expanded by 1px to cover edge artifacts
-      const innerStyles: React.CSSProperties = {
-        position: 'absolute',
-        top: '-0.5px',
-        left: '-0.5px',
-        right: '-0.5px',
-        bottom: '-0.5px',
+      // Content styles for no-border version
+      const contentStyles: React.CSSProperties = {
         padding: paddingValue,
-        boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
+        boxSizing: 'border-box',
+        flex: 1,
       };
       
-      // Apply dashed or dotted border if specified
-      if (borderStyle === 'dashed' || borderStyle === 'dotted') {
-        outerStyles.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+      if (debug) {
+        contentStyles.outline = '1px dotted green';
       }
-
+      
       return (
         <Component
           ref={combinedRef}
-          style={outerStyles}
+          style={wrapperStyles}
+          data-roundness-level={roundnessLevel}
+          data-dimension-width={widthInPx}
+          data-dimension-height={heightInPx}
           {...rest}
         >
-          <div className={className} style={innerStyles}>
-            {children}
+          <div 
+            ref={wrapperRef} 
+            style={{ 
+              position: 'relative', 
+              width: '100%', 
+              display: height === 'auto' ? 'inline-block' : 'block',
+              ...(height !== 'auto' ? { height: '100%' } : {})
+            }}
+          >
+            <div style={containerStyles}>
+              <div ref={contentRef} className={className} style={contentStyles}>
+                {children}
+                {debug && (
+                  <div style={{ position: 'absolute', bottom: 2, right: 2, fontSize: '8px', color: 'red', background: 'rgba(255,255,255,0.7)', padding: '1px 3px' }}>
+                    {widthInPx}x{heightInPx}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </Component>
       );
     }
   }
 );
+
+// Helper to merge refs
+function useMergedRef<T>(...refs: (React.Ref<T> | undefined)[]) {
+  return useCallback((element: T) => {
+    refs.forEach(ref => {
+      if (!ref) return;
+      
+      if (typeof ref === 'function') {
+        ref(element);
+      } else {
+        (ref as React.MutableRefObject<T>).current = element;
+      }
+    });
+  }, [refs]);
+}
 
 SimpleSquircle.displayName = 'SimpleSquircle';
 export const BorderedSquircle = SimpleSquircle;
