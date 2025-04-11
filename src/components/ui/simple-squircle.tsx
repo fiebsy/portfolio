@@ -14,6 +14,9 @@ export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement
   padding?: string | number;
   style?: React.CSSProperties;
   
+  // Shape props
+  roundnessLevel?: 1 | 2 | 3 | 4; // 1=most round, 4=least round
+  
   // Border radius props
   borderRadius?: string | number;  // Default is now 42px
   cornerSmoothing?: 'ios' | 'medium' | 'high' | number; // iOS = 5, medium = 4, high = 6, custom = any number from 5-8
@@ -47,6 +50,34 @@ export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement
   // Component props
   as?: React.ElementType;
 }
+
+// Define roundness levels (1=most round, 4=least round)
+const ROUNDNESS_LEVELS = {
+  // Level 1: Most rounded
+  1: {
+    smoothing: 5.0,
+    borderRadius: 30,
+    pointsPerCorner: 45
+  },
+  // Level 2: Slightly rounded
+  2: {
+    smoothing: 5.5, 
+    borderRadius: 42,
+    pointsPerCorner: 47
+  },
+  // Level 3: Slightly geometric
+  3: {
+    smoothing: 6.5,
+    borderRadius: 50,
+    pointsPerCorner: 48
+  },
+  // Level 4: Most geometric/squared, least round
+  4: {
+    smoothing: 7.5,
+    borderRadius: 70,
+    pointsPerCorner: 50
+  }
+};
 
 /**
  * Generates an SVG path for a squircle with iOS-style corner smoothing
@@ -235,6 +266,7 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       initialOpacity = 0,
       hoverTransition = '0.3s ease',
       pointsPerCorner = 45,
+      roundnessLevel,
       as: Component = 'div',
       ...rest
     },
@@ -246,9 +278,20 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
     const hoverBorderOpacity = hoverOpacity;
     const initialBorderOpacity = initialOpacity;
 
+    // Apply roundness level settings if provided
+    let finalBorderRadius = borderRadius;
+    let finalCornerSmoothing = cornerSmoothing;
+    let finalPointsPerCorner = pointsPerCorner;
+
+    if (roundnessLevel && ROUNDNESS_LEVELS[roundnessLevel]) {
+      finalBorderRadius = ROUNDNESS_LEVELS[roundnessLevel].borderRadius;
+      finalCornerSmoothing = ROUNDNESS_LEVELS[roundnessLevel].smoothing;
+      finalPointsPerCorner = ROUNDNESS_LEVELS[roundnessLevel].pointsPerCorner;
+    }
+
     const getSmoothingExponent = (): number => {
-      if (typeof cornerSmoothing === 'number') return cornerSmoothing;
-      switch (cornerSmoothing) {
+      if (typeof finalCornerSmoothing === 'number') return finalCornerSmoothing;
+      switch (finalCornerSmoothing) {
         case 'ios': return 5;
         case 'medium': return 5.5;
         case 'high': return 6.5;
@@ -309,9 +352,9 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
 
     const widthInPx = hasFixedWidth ? fixedWidth : (dimensions.width > 0 ? dimensions.width : 200);
     const heightInPx = hasFixedHeight ? fixedHeight : (dimensions.height > 0 ? dimensions.height : 200);
-    const radiusInPx = typeof borderRadius === 'number' ? borderRadius : parseInt(borderRadius.toString(), 10) || 20;
+    const radiusInPx = typeof finalBorderRadius === 'number' ? finalBorderRadius : parseInt(finalBorderRadius.toString(), 10) || 20;
     const squirclePath = isClient && widthInPx > 0 && heightInPx > 0 ?
-      generateSquirclePath(widthInPx, heightInPx, radiusInPx, borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomRight, borderRadiusBottomLeft, exponent, pointsPerCorner)
+      generateSquirclePath(widthInPx, heightInPx, radiusInPx, borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomRight, borderRadiusBottomLeft, exponent, finalPointsPerCorner)
       : '';
     const paddingValue = typeof padding === 'number' ? `${padding}px` : padding;
 

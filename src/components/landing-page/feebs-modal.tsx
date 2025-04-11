@@ -14,8 +14,8 @@ export const FeebsModal: React.FC<FeebsModalProps> = ({ className = '' }) => {
   return (
     <SimpleSquircle 
       className={`max-w-md mx-auto bg-white ${className}`}
-      padding="2rem"
-      borderRadius={20}
+      padding="20px"
+      roundnessLevel={2}
       width="auto"
     >
       {/* User Info Section */}
@@ -44,9 +44,9 @@ export const FeebsModal: React.FC<FeebsModalProps> = ({ className = '' }) => {
       </div>
 
       {/* Text Section */}
-      <div className="mb-8">
-        <div className="text-3xl">
-          <span className="text-gray-16 font-medium">I design and develop</span>
+      <div className="mb-8 font-display">
+        <div className="text-3xl font-medium">
+          <span className="text-gray-16 ">I design and develop</span>
           <br />
           <span className="text-gray-12">social and data products.</span>
         </div>
@@ -56,7 +56,7 @@ export const FeebsModal: React.FC<FeebsModalProps> = ({ className = '' }) => {
       <div className="w-full">
         <Button
           className="bg-black text-white w-full"
-          borderRadius={40}
+          roundnessLevel={1}
           padding="0.75rem 1.5rem"
           width="100%"
           height="auto"
@@ -85,7 +85,7 @@ export const FeebsModal: React.FC<FeebsModalProps> = ({ className = '' }) => {
         <SimpleSquircle
           width="100%"
           height="auto"
-          borderRadius={50}
+          roundnessLevel={1}
           className="bg-gray-12"
           padding="12px"
           border={4}
@@ -94,7 +94,7 @@ export const FeebsModal: React.FC<FeebsModalProps> = ({ className = '' }) => {
           hoverEffect={true}
           hoverOpacity={100}
           initialOpacity={0}
-          hoverTransition="0.5s ease"
+          hoverTransition="0.1s ease"
           onClick={() => alert('Simple button clicked!')}
         >
             <div className="flex items-center justify-center">
