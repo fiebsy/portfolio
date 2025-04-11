@@ -15,8 +15,8 @@ export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement
   style?: React.CSSProperties;
   
   // Border radius props
-  borderRadius?: string | number;
-  cornerSmoothing?: 'ios' | 'medium' | 'high' | number; // iOS = 5, medium = 4, high = 6, custom = any number
+  borderRadius?: string | number;  // Default is now 42px
+  cornerSmoothing?: 'ios' | 'medium' | 'high' | number; // iOS = 5, medium = 4, high = 6, custom = any number from 5-8
   
   // Per-corner border radius (optional)
   borderRadiusTopLeft?: number;
@@ -41,6 +41,9 @@ export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement
   initialOpacity?: number; // 0-100, defaults to 0
   hoverTransition?: string; // defaults to '0.3s ease'
   
+  // Advanced rendering options
+  pointsPerCorner?: number; // Controls number of points used to draw curves (default: 45)
+  
   // Component props
   as?: React.ElementType;
 }
@@ -55,6 +58,7 @@ export interface SimpleSquircleProps extends React.HTMLAttributes<HTMLDivElement
  * @param radiusBottomRight - Bottom-right corner radius
  * @param radiusBottomLeft - Bottom-left corner radius
  * @param exponent - Exponent to use for the squircle formula (higher = sharper corners)
+ * @param pointsPerCorner - Number of points to use per corner (default: 12)
  * @returns SVG path string
  */
 const generateSquirclePath = (
@@ -65,127 +69,138 @@ const generateSquirclePath = (
   radiusTopRight?: number,
   radiusBottomRight?: number,
   radiusBottomLeft?: number,
-  exponent: number = 5
+  exponent: number = 5,
+  pointsPerCorner: number = 12
 ): string => {
-  // Number of points per corner (higher = smoother)
-  const points = 120;
-  const angleStep = (Math.PI / 2) / points;
-  
   // Ensure radius doesn't exceed half of the smaller dimension
   const maxRadius = Math.min(width / 2, height / 2);
   
   // Get radius for each corner, using the default if not specified
-  const actualRadiusTL = radiusTopLeft !== undefined ? 
+  const rTL = radiusTopLeft !== undefined ? 
     Math.min(radiusTopLeft, maxRadius) : Math.min(radius, maxRadius);
   
-  const actualRadiusTR = radiusTopRight !== undefined ? 
+  const rTR = radiusTopRight !== undefined ? 
     Math.min(radiusTopRight, maxRadius) : Math.min(radius, maxRadius);
   
-  const actualRadiusBR = radiusBottomRight !== undefined ? 
+  const rBR = radiusBottomRight !== undefined ? 
     Math.min(radiusBottomRight, maxRadius) : Math.min(radius, maxRadius);
   
-  const actualRadiusBL = radiusBottomLeft !== undefined ? 
+  const rBL = radiusBottomLeft !== undefined ? 
     Math.min(radiusBottomLeft, maxRadius) : Math.min(radius, maxRadius);
   
-  // Generate coordinates for the full path
-  const coords: [number, number][] = [];
+  // Round to reduce possible rendering issues
+  const round = (num: number): number => Math.round(num * 100) / 100;
   
-  // Top edge (left to right)
-  coords.push([actualRadiusTL, 0]);
-  coords.push([width - actualRadiusTR, 0]);
+  // Calculate number of points per corner - constrain to reasonable values
+  const numPoints = Math.max(4, Math.min(pointsPerCorner, 50));
   
-  // Top-right corner
-  if (actualRadiusTR > 0) {
-    for (let i = 0; i <= points; i++) {
-      const angle = i * angleStep;
+  // Functions to generate precise iOS-style superellipse corner points
+  const generateCornerPoints = (
+    centerX: number, 
+    centerY: number, 
+    radiusX: number, 
+    radiusY: number, 
+    startAngle: number, 
+    endAngle: number,
+    clockwise: boolean = true
+  ): string => {
+    let points = '';
+    const angleStep = Math.abs(endAngle - startAngle) / numPoints;
+    const angleDirection = clockwise ? 1 : -1;
+    
+    // Skip first and last point as they will be handled by L commands
+    for (let i = 1; i < numPoints; i++) {
+      const angle = startAngle + (angleDirection * i * angleStep);
       const cosAngle = Math.cos(angle);
       const sinAngle = Math.sin(angle);
-      const factor = Math.pow(Math.pow(Math.abs(cosAngle), exponent) + Math.pow(Math.abs(sinAngle), exponent), 1/exponent);
       
-      const x = width - actualRadiusTR + (actualRadiusTR * cosAngle / factor);
-      const y = actualRadiusTR - (actualRadiusTR * sinAngle / factor);
+      // Superellipse formula for iOS-style rounded corners
+      const factor = Math.pow(
+        Math.pow(Math.abs(cosAngle), exponent) + 
+        Math.pow(Math.abs(sinAngle), exponent), 
+        1/exponent
+      );
       
-      coords.push([x, y]);
+      const x = centerX + (radiusX * cosAngle / factor);
+      const y = centerY + (radiusY * sinAngle / factor);
+      
+      // With high point counts, only add points that make a visual difference
+      // Skip points that are very close to the previous point to avoid unnecessarily complex paths
+      if (numPoints > 24 && i % 2 !== 0 && i !== numPoints - 1) {
+        continue;
+      }
+      
+      points += `L ${round(x)},${round(y)} `;
     }
-  } else {
-    // Sharp corner if radius is 0
-    coords.push([width, 0]);
-  }
+    
+    return points;
+  };
   
-  // Right edge (top to bottom)
-  coords.push([width, actualRadiusTR]);
-  coords.push([width, height - actualRadiusBR]);
-  
-  // Bottom-right corner
-  if (actualRadiusBR > 0) {
-    for (let i = 0; i <= points; i++) {
-      const angle = i * angleStep;
-      const cosAngle = Math.cos(angle);
-      const sinAngle = Math.sin(angle);
-      const factor = Math.pow(Math.pow(Math.abs(cosAngle), exponent) + Math.pow(Math.abs(sinAngle), exponent), 1/exponent);
-      
-      const x = width - actualRadiusBR + (actualRadiusBR * cosAngle / factor);
-      const y = height - actualRadiusBR + (actualRadiusBR * sinAngle / factor);
-      
-      coords.push([x, y]);
-    }
-  } else {
-    // Sharp corner if radius is 0
-    coords.push([width, height]);
-  }
-  
-  // Bottom edge (right to left)
-  coords.push([width - actualRadiusBR, height]);
-  coords.push([actualRadiusBL, height]);
-  
-  // Bottom-left corner
-  if (actualRadiusBL > 0) {
-    for (let i = 0; i <= points; i++) {
-      const angle = i * angleStep;
-      const cosAngle = Math.cos(angle);
-      const sinAngle = Math.sin(angle);
-      const factor = Math.pow(Math.pow(Math.abs(cosAngle), exponent) + Math.pow(Math.abs(sinAngle), exponent), 1/exponent);
-      
-      const x = actualRadiusBL - (actualRadiusBL * cosAngle / factor);
-      const y = height - actualRadiusBL + (actualRadiusBL * sinAngle / factor);
-      
-      coords.push([x, y]);
-    }
-  } else {
-    // Sharp corner if radius is 0
-    coords.push([0, height]);
-  }
-  
-  // Left edge (bottom to top)
-  coords.push([0, height - actualRadiusBL]);
-  coords.push([0, actualRadiusTL]);
-  
-  // Top-left corner
-  if (actualRadiusTL > 0) {
-    for (let i = 0; i <= points; i++) {
-      const angle = i * angleStep;
-      const cosAngle = Math.cos(angle);
-      const sinAngle = Math.sin(angle);
-      const factor = Math.pow(Math.pow(Math.abs(cosAngle), exponent) + Math.pow(Math.abs(sinAngle), exponent), 1/exponent);
-      
-      const x = actualRadiusTL - (actualRadiusTL * cosAngle / factor);
-      const y = actualRadiusTL - (actualRadiusTL * sinAngle / factor);
-      
-      coords.push([x, y]);
-    }
-  } else {
-    // Sharp corner if radius is 0
-    coords.push([0, 0]);
-  }
-  
-  // Build the SVG path
-  let path = `M ${coords[0][0]},${coords[0][1]} `;
-  
-  for (let i = 1; i < coords.length; i++) {
-    path += `L ${coords[i][0]},${coords[i][1]} `;
-  }
-  
-  path += 'Z';
+  // Build the path using corner points
+  // We'll use L commands instead of many tiny steps, with strategic points on the corners
+  const path = [
+    // Start at top left, after the corner curve
+    `M ${round(rTL)},0`,
+    
+    // Line to start of top right corner
+    `L ${round(width - rTR)},0`,
+    
+    // Top right corner
+    generateCornerPoints(
+      width - rTR, // center x
+      rTR,         // center y
+      rTR,         // radius x
+      rTR,         // radius y
+      -Math.PI/2,  // start angle
+      0,           // end angle
+      true         // clockwise
+    ),
+    
+    // Line to start of bottom right corner
+    `L ${round(width)},${round(height - rBR)}`,
+    
+    // Bottom right corner
+    generateCornerPoints(
+      width - rBR, // center x
+      height - rBR, // center y
+      rBR,         // radius x
+      rBR,         // radius y
+      0,           // start angle
+      Math.PI/2,   // end angle
+      true         // clockwise
+    ),
+    
+    // Line to start of bottom left corner
+    `L ${round(rBL)},${round(height)}`,
+    
+    // Bottom left corner
+    generateCornerPoints(
+      rBL,         // center x
+      height - rBL, // center y
+      rBL,         // radius x
+      rBL,         // radius y
+      Math.PI/2,   // start angle
+      Math.PI,     // end angle
+      true         // clockwise
+    ),
+    
+    // Line to start of top left corner
+    `L ${round(0)},${round(rTL)}`,
+    
+    // Top left corner
+    generateCornerPoints(
+      rTL,         // center x
+      rTL,         // center y
+      rTL,         // radius x
+      rTL,         // radius y
+      Math.PI,     // start angle
+      3*Math.PI/2, // end angle
+      true         // clockwise
+    ),
+    
+    // Close the path
+    'Z'
+  ].join(' ');
   
   return path;
 };
@@ -204,8 +219,8 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       className = '',
       width = 'auto',
       height = 'auto',
-      borderRadius = 16,
-      cornerSmoothing = 'ios',
+      borderRadius = 42,
+      cornerSmoothing = 5.5,
       borderRadiusTopLeft,
       borderRadiusTopRight,
       borderRadiusBottomRight,
@@ -219,6 +234,7 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       hoverOpacity = 100,
       initialOpacity = 0,
       hoverTransition = '0.3s ease',
+      pointsPerCorner = 45,
       as: Component = 'div',
       ...rest
     },
@@ -234,9 +250,9 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       if (typeof cornerSmoothing === 'number') return cornerSmoothing;
       switch (cornerSmoothing) {
         case 'ios': return 5;
-        case 'medium': return 4;
-        case 'high': return 6;
-        default: return 5;
+        case 'medium': return 5.5;
+        case 'high': return 6.5;
+        default: return 5.5;
       }
     };
     const exponent = getSmoothingExponent();
@@ -261,6 +277,7 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
 
     useEffect(() => {
       setIsClient(true);
+      
       let resizeObserver: ResizeObserver | null = null;
       const currentElement = localRef.current;
       const handleMouseEnterEvent = () => setIsHovered(true);
@@ -294,7 +311,7 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
     const heightInPx = hasFixedHeight ? fixedHeight : (dimensions.height > 0 ? dimensions.height : 200);
     const radiusInPx = typeof borderRadius === 'number' ? borderRadius : parseInt(borderRadius.toString(), 10) || 20;
     const squirclePath = isClient && widthInPx > 0 && heightInPx > 0 ?
-      generateSquirclePath(widthInPx, heightInPx, radiusInPx, borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomRight, borderRadiusBottomLeft, exponent)
+      generateSquirclePath(widthInPx, heightInPx, radiusInPx, borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomRight, borderRadiusBottomLeft, exponent, pointsPerCorner)
       : '';
     const paddingValue = typeof padding === 'number' ? `${padding}px` : padding;
 
@@ -306,58 +323,55 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
       return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
     };
 
+    // New double-layer approach base styles
+    const baseOuterStyle: React.CSSProperties = {
+      position: 'relative',
+      overflow: 'hidden',
+      width: width === 'full' ? '100%' : (hasFixedWidth ? `${fixedWidth}px` : width),
+      height: height === 'full' ? '100%' : (hasFixedHeight ? `${fixedHeight}px` : height),
+      boxSizing: 'border-box',
+      ...(isClient && squirclePath ? {
+        clipPath: `path('${squirclePath}')`,
+        WebkitClipPath: `path('${squirclePath}')`,
+        // Also add mask-image as primary method for Safari and other browsers
+        WebkitMaskImage: squirclePath ? `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='${widthInPx}' height='${heightInPx}'><path d='${squirclePath}' fill='black'/></svg>")` : 'none',
+        maskImage: squirclePath ? `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='${widthInPx}' height='${heightInPx}'><path d='${squirclePath}' fill='black'/></svg>")` : 'none',
+      } : {
+        borderRadius: `${radiusInPx}px`,
+      }),
+      // Force hardware acceleration in all browsers
+      transform: 'translateZ(0)',
+    };
+    
     // --- Conditional Rendering --- 
 
     // CASE 1: Solid border - Use nested elements
     if (borderStyle === 'solid' && hasBorder && borderWidth > 0) {
       const innerRadius = Math.max(0, radiusInPx - borderWidth);
-      const innerWidth = Math.max(0, widthInPx - 2 * borderWidth);
-      const innerHeight = Math.max(0, heightInPx - 2 * borderWidth);
-
-      const innerSquirclePath = isClient && innerWidth > 0 && innerHeight > 0 ?
-        generateSquirclePath(innerWidth, innerHeight, innerRadius, undefined, undefined, undefined, undefined, exponent)
-        : '';
-
-      // Outer element styles (the border)
+      
+      // Outer border element (with clip-path)
       const outerStyles: React.CSSProperties = {
-        display: 'flex',
-        position: 'relative',
-        overflow: 'hidden',
-        width: width === 'full' ? '100%' : (hasFixedWidth ? `${fixedWidth}px` : width),
-        height: height === 'full' ? '100%' : (hasFixedHeight ? `${fixedHeight}px` : height),
-        padding: `${borderWidth}px`,
-        backgroundColor: borderColor,
-        boxSizing: 'border-box',
-        ...(isClient && squirclePath ? {
-          clipPath: `path('${squirclePath}')`,
-          WebkitClipPath: `path('${squirclePath}')`,
-        } : {
-          borderRadius: `${radiusInPx}px`,
-        }),
-        ...(useHoverEffect ? { transition: `background-color ${hoverTransition}` } : {}),
-        transform: 'translateZ(0)',
+        ...baseOuterStyle,
+        backgroundColor: useHoverEffect ? 
+          getColorWithOpacity(borderColor, isHovered ? hoverBorderOpacity : initialBorderOpacity) : 
+          borderColor
       };
-
+      
       if (useHoverEffect) {
-        const currentOpacity = isHovered ? hoverBorderOpacity : initialBorderOpacity;
-        outerStyles.backgroundColor = getColorWithOpacity(borderColor, currentOpacity);
+        outerStyles.transition = `background-color ${hoverTransition}`;
       }
-
-      // Inner element styles (the content area)
+      
+      // Inner content area (no clip-path, masked by parent)
       const innerStyles: React.CSSProperties = {
-        width: '100%',
-        height: '100%',
-        padding: paddingValue,
-        overflow: 'hidden',
+        position: 'absolute',
+        top: `${borderWidth}px`,
+        left: `${borderWidth}px`,
+        right: `${borderWidth}px`,
+        bottom: `${borderWidth}px`, 
         boxSizing: 'border-box',
-        ...(isClient && innerSquirclePath ? {
-            clipPath: `path('${innerSquirclePath}')`,
-            WebkitClipPath: `path('${innerSquirclePath}')`,
-        } : {
-            borderRadius: `${innerRadius}px`,
-        }),
+        padding: paddingValue,
         ...style,
-        transform: 'translateZ(0)',
+        borderRadius: `${innerRadius}px`, // Fallback for non-clip-path browsers
       };
 
       return (
@@ -366,45 +380,48 @@ export const SimpleSquircle = forwardRef<HTMLDivElement, SimpleSquircleProps>(
           style={outerStyles}
           {...rest}
         >
-          <div
-             className={className}
-             style={innerStyles}
-          >
+          <div className={className} style={innerStyles}>
             {children}
           </div>
         </Component>
       );
     }
 
-    // CASE 2: No border, dashed, or dotted - Use single element
+    // CASE 2: No border, dashed, or dotted - Use double-layer approach
     else {
-      const singleElementStyles: React.CSSProperties = {
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        overflow: 'hidden',
-        width: width === 'full' ? '100%' : (hasFixedWidth ? `${fixedWidth}px` : width),
-        height: height === 'full' ? '100%' : (hasFixedHeight ? `${fixedHeight}px` : height),
+      // Outer shape container (with clip-path)
+      const outerStyles: React.CSSProperties = {
+        ...baseOuterStyle,
+        ...style,
+      };
+      
+      // Inner content container - expanded by 1px to cover edge artifacts
+      const innerStyles: React.CSSProperties = {
+        position: 'absolute',
+        top: '-0.5px',
+        left: '-0.5px',
+        right: '-0.5px',
+        bottom: '-0.5px',
         padding: paddingValue,
         boxSizing: 'border-box',
-        ...style,
-        ...(isClient && squirclePath ? {
-          clipPath: `path('${squirclePath}')`,
-          WebkitClipPath: `path('${squirclePath}')`,
-        } : {
-          borderRadius: `${radiusInPx}px`,
-        }),
-        transform: 'translateZ(0)',
+        display: 'flex',
+        flexDirection: 'column',
       };
+      
+      // Apply dashed or dotted border if specified
+      if (borderStyle === 'dashed' || borderStyle === 'dotted') {
+        outerStyles.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+      }
 
       return (
         <Component
           ref={combinedRef}
-          className={className}
-          style={singleElementStyles}
+          style={outerStyles}
           {...rest}
         >
-          {children}
+          <div className={className} style={innerStyles}>
+            {children}
+          </div>
         </Component>
       );
     }
