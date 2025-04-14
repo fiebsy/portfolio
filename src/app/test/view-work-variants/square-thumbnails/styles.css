@@ -1,0 +1,94 @@
+/* Sheet View Styles */
+.CustomSheet-view {
+  /* SELF-LAYOUT */
+  z-index: 1;
+  /* Adding 60px to make it fully visible below iOS Safari's bottom UI */
+  height: calc(var(--silk-100-lvh-dvh-pct) + 60px);
+}
+
+/* Sheet Content Styles */
+.CustomSheet-content {
+  /* Auto height to wrap content instead of fixed height */
+  height: auto;
+  max-height: calc(85svh + env(safe-area-inset-bottom, 0px));
+
+  /* APPEARANCE */
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  overflow: clip;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  /* INNER-LAYOUT */
+  padding-inline: 1rem;
+  padding-block: 1rem max(env(safe-area-inset-bottom, 0px), 1rem);
+  display: grid;
+  grid-template-rows: auto auto; /* Header and body can both be auto height */
+
+  /* For bottom sheet, increase maximum width */
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Sheet Backdrop Styles */
+.CustomSheet-backdrop {
+  /* Setting explicit background-color without alpha channel */
+  background-color: rgb(0, 0, 0);
+}
+
+/* Body Styles */
+.CustomSheet-body {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  overflow-y: auto;
+  max-height: calc(70svh); /* Limit max height for very large content */
+}
+
+/* Project List Styles */
+.project-list {
+  padding: 0 1rem;
+}
+
+/* Project Card Styles */
+.project-card {
+  transition: all 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.project-thumbnail {
+  background-color: #f5f5f5;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.project-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Component Styles */
+.CustomSheet-handle {
+  width: 2rem;
+  height: 0.25rem;
+  background-color: #e5e7eb;
+  border-radius: 0.125rem;
+  margin: 0 auto 0.75rem;
+}
+
+.CustomSheet-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.CustomSheet-description {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}

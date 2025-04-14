@@ -7,13 +7,21 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "check-format": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "check-types": "tsc --noEmit",
+    "validate": "npm run lint && npm run check-format && npm run check-types",
     "populate-svgs": "tsx scripts/utils/svg-component-generator.ts",
-    "generate-color-mappings": "tsx scripts/utils/generate-color-mappings.ts"
+    "generate-color-mappings": "tsx scripts/utils/generate-color-mappings.ts",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.1",
+    "@heroicons/react": "^2.2.0",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@silk-hq/components": "^0.8.15",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.487.0",
     "next": "15.2.4",
     "react": "^19.0.0",
@@ -27,12 +35,31 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/svg-parser": "^2.0.6",
+    "@typescript-eslint/eslint-plugin": "^8.29.1",
+    "@typescript-eslint/parser": "^8.29.1",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.6",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.5.1",
+    "prettier": "^3.5.3",
+    "prettier-plugin-sort-imports": "^1.8.7",
     "svg-parser": "^2.0.4",
     "tailwindcss": "^4",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

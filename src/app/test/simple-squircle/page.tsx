@@ -1,48 +1,191 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { SimpleSquircle, SimpleSquircleProps } from '@/components/ui/simple-squircle';
+import React, { useEffect, useRef, useState } from 'react';
+
+// Debug component to display raw dimension data
+const DebugInfo = ({
+  width,
+  height,
+  className = '',
+}: {
+  width: string | number | undefined;
+  height: string | number | undefined;
+  className?: string;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({
+    clientWidth: 0,
+    clientHeight: 0,
+    offsetWidth: 0,
+    offsetHeight: 0,
+    scrollWidth: 0,
+    scrollHeight: 0,
+    getBoundingClientRect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 },
+  });
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        setDimensions({
+          clientWidth: ref.current.clientWidth,
+          clientHeight: ref.current.clientHeight,
+          offsetWidth: ref.current.offsetWidth,
+          offsetHeight: ref.current.offsetHeight,
+          scrollWidth: ref.current.scrollWidth,
+          scrollHeight: ref.current.scrollHeight,
+          getBoundingClientRect: {
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            left: rect.left,
+            right: rect.right,
+            bottom: rect.bottom,
+          },
+        });
+      }
+    };
+
+    updateDimensions();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions();
+    });
+
+    if (ref.current) {
+      resizeObserver.observe(ref.current);
+    }
+
+    window.addEventListener('resize', updateDimensions);
+
+    return () => {
+      const currentRef = ref.current;
+      if (currentRef) resizeObserver.unobserve(currentRef);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`text-xs font-mono bg-gray-800 text-white p-2 mt-2 rounded overflow-auto ${className}`}
+    >
+      <div className="mb-1 pb-1 border-b border-gray-700">
+        <span className="text-yellow-400">Props:</span> width={JSON.stringify(width)}, height=
+        {JSON.stringify(height)}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <div>
+            <span className="text-green-400">client:</span> {dimensions.clientWidth}×
+            {dimensions.clientHeight}
+          </div>
+          <div>
+            <span className="text-green-400">offset:</span> {dimensions.offsetWidth}×
+            {dimensions.offsetHeight}
+          </div>
+          <div>
+            <span className="text-green-400">scroll:</span> {dimensions.scrollWidth}×
+            {dimensions.scrollHeight}
+          </div>
+        </div>
+        <div>
+          <div>
+            <span className="text-blue-400">rect.width:</span>{' '}
+            {dimensions.getBoundingClientRect.width}
+          </div>
+          <div>
+            <span className="text-blue-400">rect.height:</span>{' '}
+            {dimensions.getBoundingClientRect.height}
+          </div>
+          <div>
+            <span className="text-blue-400">position:</span> {dimensions.getBoundingClientRect.left}
+            ,{dimensions.getBoundingClientRect.top}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// New component to debug the internal layout of SimpleSquircle
+const SquircleDebugOverlay = ({
+  children,
+  width,
+  height,
+}: {
+  children: React.ReactNode;
+  width: string | number | undefined;
+  height: string | number | undefined;
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [actualDimensions, setActualDimensions] = useState({ width: 0, height: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setActualDimensions({
+          width: rect.width,
+          height: rect.height,
+        });
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {isHovered && (
+        <div className="absolute inset-0 z-10 bg-black bg-opacity-30 pointer-events-none">
+          <div className="absolute top-0 left-0 bg-red-500 text-white text-xs px-1">
+            Props: {width}×{height}
+          </div>
+          <div className="absolute top-0 right-0 bg-green-500 text-white text-xs px-1">
+            Actual: {Math.round(actualDimensions.width)}×{Math.round(actualDimensions.height)}
+          </div>
+          <div className="absolute inset-0 border-2 border-red-500 pointer-events-none"></div>
+        </div>
+      )}
+      {children}
+    </div>
+  );
+};
 
 export default function Home() {
   // State for toast notification
   const [showToast, setShowToast] = useState(false);
-  
+
   // Dimensions
-  const [width, setWidth] = useState<string | number>('400');
-  const [height, setHeight] = useState<string | number>('300');
-  const [useFixedDimensions, setUseFixedDimensions] = useState(true);
-  
-  // Border radius
-  const [borderRadius, setBorderRadius] = useState(24);
-  const [usePerCornerRadius, setUsePerCornerRadius] = useState(false);
-  const [borderRadiusTopLeft, setBorderRadiusTopLeft] = useState(24);
-  const [borderRadiusTopRight, setBorderRadiusTopRight] = useState(24);
-  const [borderRadiusBottomRight, setBorderRadiusBottomRight] = useState(24);
-  const [borderRadiusBottomLeft, setBorderRadiusBottomLeft] = useState(24);
-  
-  // Colors - REMOVED
-  // const [backgroundColor, setBackgroundColor] = useState('#ffffff');
-  
-  // Padding
-  const [padding, setPadding] = useState('1.5rem');
-  
-  // Styling
-  const [customClassName, setCustomClassName] = useState('bg-white'); // Default bg, border set by props below
-  
-  // Restored Border state (for solid borders)
+  const [width, setWidth] = useState<string | number>('auto');
+  const [height, setHeight] = useState<string | number>('auto');
+  const [useFixedDimensions, setUseFixedDimensions] = useState(false);
+
+  // Roundness level
+  const [roundnessLevel, setRoundnessLevel] = useState<1 | 2 | 3 | 4>(1);
+
+  // Border settings
   const [hasBorder, setHasBorder] = useState(true);
   const [borderWidth, setBorderWidth] = useState(2);
   const [borderColor, setBorderColor] = useState('#3b82f6');
-  const [borderStyle, setBorderStyle] = useState<'solid' | 'dashed' | 'dotted'>('solid');
-  
-  // Restored Hover border settings state (for solid borders)
-  const [useHoverBorder, setUseHoverBorder] = useState(false);
-  const [hoverBorderOpacity, setHoverBorderOpacity] = useState(100);
-  const [initialBorderOpacity, setInitialBorderOpacity] = useState(0);
-  const [hoverTransitionDuration, setHoverTransitionDuration] = useState(0.3);
-  
+
+  // Debug mode
+  const [debugMode, setDebugMode] = useState(true);
+
   // Content
-  const content = "This is a SimpleSquircle component with iOS-style corner smoothing.";
+  const content = 'This is a SimpleSquircle component with iOS-style corner smoothing.';
 
   // Handle toast dismiss after timeout
   useEffect(() => {
@@ -53,233 +196,101 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, [showToast]);
-  
+
   // Generate props for SimpleSquircle
   const squircleProps: SimpleSquircleProps = {
-    width: useFixedDimensions ? parseInt(width as string) : width === 'full' ? 'full' : 'auto',
-    height: useFixedDimensions ? parseInt(height as string) : height === 'full' ? 'full' : 'auto',
-    borderRadius: borderRadius,
-    ...(usePerCornerRadius && {
-      borderRadiusTopLeft,
-      borderRadiusTopRight,
-      borderRadiusBottomRight,
-      borderRadiusBottomLeft
-    }),
-    className: customClassName,
-    padding: padding,
-    // Restored border props
+    width: useFixedDimensions ? parseInt(width as string) : width,
+    height: useFixedDimensions ? parseInt(height as string) : height,
+    className: 'bg-white',
+    padding: '1.5rem',
     border: hasBorder ? borderWidth : false,
     borderColor: borderColor,
-    borderStyle: borderStyle,
-    // Restored hover props
-    ...(useHoverBorder && borderStyle === 'solid' && {
-      hoverEffect: true,
-      hoverOpacity: hoverBorderOpacity,
-      initialOpacity: initialBorderOpacity,
-      hoverTransition: `${hoverTransitionDuration}s ease`
-    }),
+    borderStyle: 'solid',
+    roundnessLevel: roundnessLevel,
+    debug: debugMode,
   };
-
-  // Generate code string
-  const generateCode = () => {
-    const props = { ...squircleProps };
-    
-    // Format dimensions for display
-    if (typeof props.width === 'number') {
-      props.width = `${props.width}`;
-    }
-    if (typeof props.height === 'number') {
-      props.height = `${props.height}`;
-    }
-    
-    // Remove undefined props
-    Object.keys(props).forEach(key => {
-      if (props[key as keyof typeof props] === undefined) {
-        delete props[key as keyof typeof props];
-      }
-    });
-
-    // Format each prop properly for JSX
-    const formattedProps = Object.entries(props).map(([key, value]) => {
-      // Format string values
-      if (typeof value === 'string') {
-        // Special handling for 'full' and 'auto' values
-        if (key === 'className' || value === 'full' || value === 'auto') {
-          return `${key}="${value}"`;
-        }
-        return `${key}="${value}"`;
-      }
-      // Format numeric values
-      if (typeof value === 'number') {
-        return `${key}={${value}}`;
-      }
-      // Format boolean values
-      if (typeof value === 'boolean') {
-        return value ? `${key}` : null;
-      }
-      // Format object values
-      if (typeof value === 'object' && value !== null) {
-        return `${key}={${JSON.stringify(value)}}`;
-      }
-      return `${key}={${JSON.stringify(value)}}`;
-    }).filter(Boolean).join('\n  ');
-    
-    return `import { SimpleSquircle } from '@/components/ui/simple-squircle';
-
-<SimpleSquircle
-  ${formattedProps}
->
-  {children}
-</SimpleSquircle>`;
-  };
-
-  // Function to copy code to clipboard
-  const copyCodeToClipboard = () => {
-    navigator.clipboard.writeText(generateCode());
-    setShowToast(true);
-  };
-
-  // Group props by category for better display
-  const groupProps = () => {
-    const props = { ...squircleProps };
-    const result: Record<string, Record<string, string | number | boolean | undefined>> = {
-      'Dimensions': {},
-      'Border Radius': {},
-      'Appearance': {},
-      'Border (Solid)': {},
-      'Hover (Solid Border)': {},
-      'Classes (Tailwind)': {}
-    };
-    
-    // Add dimensions
-    result['Dimensions'] = {
-      width: props.width,
-      height: props.height
-    };
-    
-    // Add border radius
-    if (usePerCornerRadius) {
-      result['Border Radius'] = {
-        borderRadiusTopLeft,
-        borderRadiusTopRight,
-        borderRadiusBottomRight,
-        borderRadiusBottomLeft
-      };
-    } else {
-      result['Border Radius'] = {
-        borderRadius: props.borderRadius
-      };
-    }
-    
-    // Add appearance
-    result['Appearance'] = {
-      padding: props.padding
-    };
-    
-    // Add Classes
-    result['Classes (Tailwind)'] = {
-      className: props.className
-    };
-    
-    // Restored border group logic (conditional)
-    if (props.border) {
-        result['Border (Solid)'] = {
-          border: props.border,
-          borderStyle: props.borderStyle,
-          borderColor: props.borderColor
-        };
-    }
-    
-    // Restored hover group logic (conditional)
-    if (props.hoverEffect) {
-      result['Hover (Solid Border)'] = {
-        hoverEffect: props.hoverEffect,
-        hoverOpacity: props.hoverOpacity,
-        initialOpacity: props.initialOpacity,
-        hoverTransition: props.hoverTransition
-      };
-    }
-    
-    return result;
-  };
-
-  const groupedProps = groupProps();
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center p-8">
-      <h1 className="text-3xl font-semibold mb-6 text-gray-800">SimpleSquircle Demo</h1>
-      
+      <h1 className="text-3xl font-semibold mb-6 text-gray-800">SimpleSquircle Debug</h1>
+
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Controls Panel */}
         <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-md space-y-6 h-min">
           <h2 className="text-xl font-semibold border-b pb-2 mb-4">Control Panel</h2>
-          
+
           {/* Quick Presets */}
           <div className="space-y-4">
-            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">Quick Presets</h3>
+            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">
+              Test Cases
+            </h3>
             <div className="flex flex-wrap gap-2">
-              <button 
-                onClick={() => {
-                  setUseFixedDimensions(false);
-                  setWidth('full');
-                  setHeight('auto');
-                  setBorderRadius(16);
-                  setCustomClassName('bg-white p-6'); // Control bg/padding via className if desired, or use props
-                  setPadding('1.5rem');
-                  setHasBorder(true); // Use border props for solid border
-                  setBorderWidth(2);
-                  setBorderColor('#3b82f6');
-                  setBorderStyle('solid');
-                  setUseHoverBorder(false);
-                }} 
-                className="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded hover:bg-blue-200"
-              >
-                Card
-              </button>
-              <button 
+              <button
                 onClick={() => {
                   setUseFixedDimensions(false);
                   setWidth('auto');
                   setHeight('auto');
-                  setBorderRadius(8);
-                  setCustomClassName('bg-black text-white px-5 py-2.5 hover:bg-gray-800 transition-colors'); // Use className for bg, text, padding, hover bg
-                  setPadding('0'); // Padding controlled by className
-                  setHasBorder(false); // No solid border needed
-                  setBorderStyle('solid'); // Reset style
-                  setUseHoverBorder(false);
-                }} 
-                className="px-3 py-1 bg-gray-800 text-white text-xs rounded hover:bg-gray-700"
+                  setHasBorder(true);
+                }}
+                className={`px-3 py-1 ${width === 'auto' && height === 'auto' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-800'} text-xs rounded hover:bg-blue-200`}
               >
-                Button
+                Auto Width/Height
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setUseFixedDimensions(false);
                   setWidth('full');
                   setHeight('auto');
-                  setBorderRadius(16);
-                  setCustomClassName('bg-transparent border border-dashed border-gray-300 hover:border-blue-500 transition-colors p-4'); // Use className for ALL styling including dashed border
-                  setPadding('0'); // Padding controlled by className
-                  setHasBorder(false); // Do not use solid border props
-                  setBorderStyle('dashed'); // Set style for clarity, but className controls rendering
-                  setUseHoverBorder(false);
-                }} 
-                className="px-3 py-1 bg-gray-100 text-gray-800 text-xs rounded hover:bg-gray-200"
+                  setHasBorder(true);
+                }}
+                className={`px-3 py-1 ${width === 'full' && height === 'auto' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-800'} text-xs rounded hover:bg-blue-200`}
               >
-                Drop Zone
+                100% Width / Auto Height
+              </button>
+              <button
+                onClick={() => {
+                  setUseFixedDimensions(true);
+                  setWidth('400');
+                  setHeight('200');
+                  setHasBorder(true);
+                }}
+                className={`px-3 py-1 ${useFixedDimensions ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-800'} text-xs rounded hover:bg-blue-200`}
+              >
+                Fixed Dimensions
               </button>
             </div>
           </div>
-          
+
+          {/* Debug Mode */}
+          <div className="space-y-4">
+            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">
+              Debug Tools
+            </h3>
+            <div className="flex items-center mb-2">
+              <input
+                type="checkbox"
+                id="debug-toggle"
+                checked={debugMode}
+                onChange={() => setDebugMode(!debugMode)}
+                className="mr-2"
+              />
+              <label htmlFor="debug-toggle" className="text-sm font-medium">
+                Enable Debug Mode
+              </label>
+            </div>
+          </div>
+
           {/* Dimensions */}
           <div className="space-y-4">
-            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">Dimensions</h3>
-            
+            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">
+              Dimensions
+            </h3>
+
             <div className="flex items-center mb-2">
-              <input 
-                type="checkbox" 
-                id="fixed-toggle" 
-                checked={useFixedDimensions} 
+              <input
+                type="checkbox"
+                id="fixed-toggle"
+                checked={useFixedDimensions}
                 onChange={() => setUseFixedDimensions(!useFixedDimensions)}
                 className="mr-2"
               />
@@ -287,48 +298,36 @@ export default function Home() {
                 Use Fixed Dimensions
               </label>
             </div>
-            
+
             {useFixedDimensions ? (
               <>
                 <div>
                   <label className="block text-sm font-medium mb-1">Width (px)</label>
-                  <input 
-                    type="range" 
-                    min="100" 
-                    max="600" 
-                    value={width as string} 
+                  <input
+                    type="range"
+                    min="100"
+                    max="600"
+                    value={width as string}
                     onChange={(e) => setWidth(e.target.value)}
                     className="w-full"
                   />
                   <div className="flex justify-between">
                     <span className="text-xs">{width}px</span>
-                    <button 
-                      onClick={() => setWidth('400')}
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      Reset
-                    </button>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-1">Height (px)</label>
-                  <input 
-                    type="range" 
-                    min="50" 
-                    max="500" 
-                    value={height as string} 
+                  <input
+                    type="range"
+                    min="50"
+                    max="500"
+                    value={height as string}
                     onChange={(e) => setHeight(e.target.value)}
                     className="w-full"
                   />
                   <div className="flex justify-between">
                     <span className="text-xs">{height}px</span>
-                    <button 
-                      onClick={() => setHeight('300')}
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      Reset
-                    </button>
                   </div>
                 </div>
               </>
@@ -336,500 +335,517 @@ export default function Home() {
               <>
                 <div>
                   <label className="block text-sm font-medium mb-1">Width</label>
-                  <select 
+                  <select
                     className="w-full p-2 border border-gray-300 rounded"
                     value={width as string}
                     onChange={(e) => setWidth(e.target.value)}
                   >
                     <option value="full">full (100%)</option>
                     <option value="auto">auto</option>
+                    <option value="50%">50%</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-1">Height</label>
-                  <select 
+                  <select
                     className="w-full p-2 border border-gray-300 rounded"
                     value={height as string}
                     onChange={(e) => setHeight(e.target.value)}
                   >
                     <option value="full">full (100%)</option>
                     <option value="auto">auto</option>
+                    <option value="50%">50%</option>
                   </select>
                 </div>
               </>
             )}
           </div>
-          
-          {/* Border Radius */}
+
+          {/* Roundness Levels */}
           <div className="space-y-4">
-            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">Border Radius</h3>
-            
-            <div className="flex items-center mb-2">
-              <input 
-                type="checkbox" 
-                id="per-corner-toggle" 
-                checked={usePerCornerRadius} 
-                onChange={() => setUsePerCornerRadius(!usePerCornerRadius)}
-                className="mr-2"
-              />
-              <label htmlFor="per-corner-toggle" className="text-sm font-medium">
-                Use Per-Corner Border Radius
-              </label>
-            </div>
-            
-            {usePerCornerRadius ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Top Left (px)</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="50" 
-                    value={borderRadiusTopLeft}
-                    onChange={(e) => setBorderRadiusTopLeft(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                  <span className="text-xs">{borderRadiusTopLeft}px</span>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Top Right (px)</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="50" 
-                    value={borderRadiusTopRight}
-                    onChange={(e) => setBorderRadiusTopRight(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                  <span className="text-xs">{borderRadiusTopRight}px</span>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Bottom Right (px)</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="50" 
-                    value={borderRadiusBottomRight}
-                    onChange={(e) => setBorderRadiusBottomRight(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                  <span className="text-xs">{borderRadiusBottomRight}px</span>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Bottom Left (px)</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="50" 
-                    value={borderRadiusBottomLeft}
-                    onChange={(e) => setBorderRadiusBottomLeft(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                  <span className="text-xs">{borderRadiusBottomLeft}px</span>
-                </div>
-                
-                <div className="flex justify-end">
-                  <button 
-                    onClick={() => {
-                      setBorderRadiusTopLeft(borderRadius);
-                      setBorderRadiusTopRight(borderRadius);
-                      setBorderRadiusBottomRight(borderRadius);
-                      setBorderRadiusBottomLeft(borderRadius);
-                    }}
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    Reset All to {borderRadius}px
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div>
-                <label className="block text-sm font-medium mb-1">Uniform Radius (px)</label>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="50" 
-                  value={borderRadius}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    setBorderRadius(value);
-                    setBorderRadiusTopLeft(value);
-                    setBorderRadiusTopRight(value);
-                    setBorderRadiusBottomRight(value);
-                    setBorderRadiusBottomLeft(value);
-                  }}
-                  className="w-full"
-                />
-                <span className="text-xs">{borderRadius}px</span>
-              </div>
-            )}
-          </div>
-          
-          {/* Styling */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">Styling</h3>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">ClassName (Tailwind)</label>
-              <input
-                type="text"
-                className="w-full p-2 border border-gray-300 rounded font-mono text-sm"
-                placeholder="e.g., bg-red-500 border border-red-700 hover:bg-red-600"
-                value={customClassName}
-                onChange={(e) => setCustomClassName(e.target.value)}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Apply Tailwind classes for background, text color, non-solid borders (dashed/dotted), and their hover states. Solid borders use the props below.
-              </p>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Padding</label>
-              <input
-                type="text"
-                className="w-full p-2 border border-gray-300 rounded"
-                placeholder="e.g., 10px 20px"
-                value={padding}
-                onChange={(e) => setPadding(e.target.value)}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                You can use CSS padding syntax (e.g., &ldquo;10px&rdquo;, &ldquo;10px 20px&rdquo;, &ldquo;10px 15px 20px 15px&rdquo;)
-              </p>
+            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">
+              Roundness Level
+            </h3>
+            <div className="grid grid-cols-4 gap-2">
+              <button
+                onClick={() => setRoundnessLevel(1)}
+                className={`p-2 ${roundnessLevel === 1 ? 'bg-blue-500 text-white' : 'bg-gray-100'} rounded-lg text-sm flex items-center justify-center`}
+              >
+                Level 1 <br />
+                (Most Round)
+              </button>
+              <button
+                onClick={() => setRoundnessLevel(2)}
+                className={`p-2 ${roundnessLevel === 2 ? 'bg-blue-500 text-white' : 'bg-gray-100'} rounded-lg text-sm flex items-center justify-center`}
+              >
+                Level 2
+              </button>
+              <button
+                onClick={() => setRoundnessLevel(3)}
+                className={`p-2 ${roundnessLevel === 3 ? 'bg-blue-500 text-white' : 'bg-gray-100'} rounded-lg text-sm flex items-center justify-center`}
+              >
+                Level 3
+              </button>
+              <button
+                onClick={() => setRoundnessLevel(4)}
+                className={`p-2 ${roundnessLevel === 4 ? 'bg-blue-500 text-white' : 'bg-gray-100'} rounded-lg text-sm flex items-center justify-center`}
+              >
+                Level 4 <br />
+                (Least Round)
+              </button>
             </div>
           </div>
-          
-          {/* Restored Border Section (for Solid Borders) */}
+
+          {/* Border */}
           <div className="space-y-4">
-            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">Border (Solid Only)</h3>
-            
+            <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider">Border</h3>
             <div className="flex items-center mb-2">
-              <input 
-                type="checkbox" 
-                id="border-toggle" 
-                checked={hasBorder} 
+              <input
+                type="checkbox"
+                id="border-toggle"
+                checked={hasBorder}
                 onChange={() => setHasBorder(!hasBorder)}
                 className="mr-2"
               />
               <label htmlFor="border-toggle" className="text-sm font-medium">
-                Show Solid Border (Uses Props)
+                Show Border
               </label>
             </div>
-            
+
             {hasBorder && (
               <>
-                 <div>
-                   <label className="block text-sm font-medium mb-1">Border Style (Must be Solid for Props)</label>
-                   <select 
-                     className="w-full p-2 border border-gray-300 rounded"
-                     value={borderStyle}
-                     onChange={(e) => setBorderStyle(e.target.value as 'solid' | 'dashed' | 'dotted')}
-                   >
-                     <option value="solid">Solid (Uses Props)</option>
-                     <option value="dashed">Dashed (Use className)</option>
-                     <option value="dotted">Dotted (Use className)</option>
-                   </select>
-                   {borderStyle !== 'solid' && <p className="text-xs text-orange-600 mt-1">Apply dashed/dotted styles via className.</p>}
-                 </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Border Width (px)</label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={borderWidth}
+                    onChange={(e) => setBorderWidth(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                  <span className="text-xs">{borderWidth}px</span>
+                </div>
 
-                {borderStyle === 'solid' && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Solid Border Width (px)</label>
-                        <input 
-                          type="range" 
-                          min="1" 
-                          max="10" 
-                          value={borderWidth}
-                          onChange={(e) => setBorderWidth(parseInt(e.target.value))}
-                          className="w-full"
-                        />
-                        <span className="text-xs">{borderWidth}px</span>
-                      </div>
-            
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Solid Border Color</label>
-                        <div className="flex items-center">
-                          <input 
-                            type="color" 
-                            value={borderColor}
-                            onChange={(e) => setBorderColor(e.target.value)}
-                            className="w-8 h-8 mr-2"
-                          />
-                          <input
-                            type="text"
-                            value={borderColor}
-                            onChange={(e) => setBorderColor(e.target.value)}
-                            className="border border-gray-300 p-1 rounded w-24 text-sm"
-                          />
-                          <button 
-                            onClick={() => setBorderColor('#3b82f6')}
-                            className="ml-2 text-xs text-blue-600 hover:underline"
-                          >
-                            Reset
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Hover border controls for solid border */} 
-                      <div className="flex items-center mb-2 mt-4">
-                        <input 
-                          type="checkbox" 
-                          id="hover-border-toggle" 
-                          checked={useHoverBorder} 
-                          onChange={() => setUseHoverBorder(!useHoverBorder)}
-                          className="mr-2"
-                        />
-                        <label htmlFor="hover-border-toggle" className="text-sm font-medium">
-                          Use Hover Effect (Solid Border Props)
-                        </label>
-                      </div>
-                      
-                      {useHoverBorder && (
-                        <>
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Initial Opacity ({initialBorderOpacity}%)</label>
-                            <input 
-                              type="range" 
-                              min="0" 
-                              max="100" 
-                              value={initialBorderOpacity}
-                              onChange={(e) => setInitialBorderOpacity(parseInt(e.target.value))}
-                              className="w-full"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Hover Opacity ({hoverBorderOpacity}%)</label>
-                            <input 
-                              type="range" 
-                              min="0" 
-                              max="100" 
-                              value={hoverBorderOpacity}
-                              onChange={(e) => setHoverBorderOpacity(parseInt(e.target.value))}
-                              className="w-full"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Transition Duration ({hoverTransitionDuration}s)</label>
-                            <input 
-                              type="range" 
-                              min="0" 
-                              max="2" 
-                              step="0.1"
-                              value={hoverTransitionDuration}
-                              onChange={(e) => setHoverTransitionDuration(parseFloat(e.target.value))}
-                              className="w-full"
-                            />
-                          </div>
-                        </>
-                      )}
-                    </>
-                )}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Border Color</label>
+                  <div className="flex items-center">
+                    <input
+                      type="color"
+                      value={borderColor}
+                      onChange={(e) => setBorderColor(e.target.value)}
+                      className="w-8 h-8 mr-2"
+                    />
+                    <input
+                      type="text"
+                      value={borderColor}
+                      onChange={(e) => setBorderColor(e.target.value)}
+                      className="border border-gray-300 p-1 rounded w-24 text-sm"
+                    />
+                  </div>
+                </div>
               </>
             )}
           </div>
         </div>
-        
+
         {/* Preview and Code Section */}
         <div className="lg:col-span-2 space-y-6">
           {/* Preview */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold border-b pb-2 mb-4">Preview</h2>
-            
-            <div className="w-full bg-gray-100 flex items-center justify-center p-8 rounded-md min-h-[400px]">
-              <SimpleSquircle {...squircleProps}>
-                <div className="text-center">{content}</div>
-              </SimpleSquircle>
+
+            <div className="w-full bg-gray-100 flex items-center justify-center p-8 rounded-md h-[400px] relative">
+              <div
+                className="relative"
+                style={{
+                  border: '1px dashed blue',
+                  padding: '20px',
+                  width: '100%',
+                  height: '100%',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    background: '#000',
+                    color: '#fff',
+                    padding: '2px 4px',
+                    fontSize: '10px',
+                  }}
+                >
+                  Container
+                </div>
+                <SimpleSquircle {...squircleProps}>
+                  <div className="text-center">{content}</div>
+                </SimpleSquircle>
+              </div>
             </div>
+
+            <DebugInfo width={squircleProps.width} height={squircleProps.height} className="mt-4" />
           </div>
-          
+
           {/* Current Properties */}
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Current Properties</h2>
-            
-            <div className="space-y-4">
-              {Object.entries(groupedProps).map(([category, props]) => (
-                <div key={category} className="border-b pb-3 last:border-b-0 last:pb-0">
-                  <h3 className="font-medium text-sm text-gray-700 uppercase tracking-wider mb-2">{category}</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(props).map(([key, value]) => (
-                      <div key={key} className="flex items-start">
-                        <span className="text-sm font-medium text-gray-600 mr-2">{key}:</span>
-                        <span className="text-sm text-gray-800 font-mono overflow-hidden text-ellipsis">
-                          {typeof value === 'object' ? JSON.stringify(value) : value?.toString()}
-                        </span>
+            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Component Properties</h2>
+
+            <pre className="bg-gray-100 p-4 rounded overflow-auto text-xs">
+              {JSON.stringify(squircleProps, null, 2)}
+            </pre>
+          </div>
+
+          {/* Width & Height Test Cases */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Width & Height Test Cases</h2>
+
+            <div className="space-y-8">
+              <div>
+                <h3 className="font-medium">Auto Width & Height</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50 relative">
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      background: '#000',
+                      color: '#fff',
+                      padding: '2px 4px',
+                      fontSize: '10px',
+                    }}
+                  >
+                    Container
+                  </div>
+                  <SimpleSquircle
+                    width="auto"
+                    height="auto"
+                    className="bg-green-100"
+                    debug={debugMode}
+                  >
+                    <div className="p-4 whitespace-nowrap">
+                      <h4 className="font-bold text-lg">Auto Width Content</h4>
+                      <p>This text should force the component to expand horizontally</p>
+                      <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded w-full">
+                        Long Button Text That Expands Width
+                      </button>
+                    </div>
+                  </SimpleSquircle>
+                  <DebugInfo width="auto" height="auto" />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium">100% Width</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50 relative">
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      background: '#000',
+                      color: '#fff',
+                      padding: '2px 4px',
+                      fontSize: '10px',
+                    }}
+                  >
+                    Container
+                  </div>
+                  <SquircleDebugOverlay width="full" height="auto">
+                    <SimpleSquircle
+                      width="full"
+                      height="auto"
+                      className="bg-yellow-100"
+                      debug={debugMode}
+                    >
+                      <div className="p-4">100% width, auto height content</div>
+                    </SimpleSquircle>
+                  </SquircleDebugOverlay>
+                  <DebugInfo width="full" height="auto" />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium">50% Width</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50 relative">
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      background: '#000',
+                      color: '#fff',
+                      padding: '2px 4px',
+                      fontSize: '10px',
+                    }}
+                  >
+                    Container
+                  </div>
+                  <SimpleSquircle
+                    width="50%"
+                    height="auto"
+                    className="bg-purple-100"
+                    debug={debugMode}
+                  >
+                    <div className="p-4">50% width, auto height content</div>
+                  </SimpleSquircle>
+                  <DebugInfo width="50%" height="auto" />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium">Fixed Width & Height</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50 relative">
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      background: '#000',
+                      color: '#fff',
+                      padding: '2px 4px',
+                      fontSize: '10px',
+                    }}
+                  >
+                    Container
+                  </div>
+                  <SimpleSquircle width={300} height={100} className="bg-red-100" debug={debugMode}>
+                    <div className="flex items-center justify-center h-full">300px × 100px</div>
+                  </SimpleSquircle>
+                  <DebugInfo width={300} height={100} />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium">100% Width & 100% Height</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50 relative h-[800px]">
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      background: '#000',
+                      color: '#fff',
+                      padding: '2px 4px',
+                      fontSize: '10px',
+                    }}
+                  >
+                    Container (h-64)
+                  </div>
+                  <SimpleSquircle
+                    width="100%"
+                    height="auto"
+                    className="bg-blue-100"
+                    debug={debugMode}
+                  >
+                    <div className="flex items-center justify-center h-full">
+                      100% width & height
+                    </div>
+                  </SimpleSquircle>
+                  <DebugInfo width="full" height="full" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Forced Content Tests */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Extra Test Cases</h2>
+
+            <div className="space-y-8">
+              <div>
+                <h3 className="font-medium">Auto Width with Long Content</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50">
+                  <SimpleSquircle
+                    width="auto"
+                    height="auto"
+                    className="bg-blue-100"
+                    debug={debugMode}
+                  >
+                    <div className="p-4 whitespace-nowrap">
+                      <span className="font-bold">
+                        This is a very long piece of content that should force the auto width to
+                        expand significantly beyond normal text length
+                      </span>
+                      <div className="mt-2">
+                        <button className="px-4 py-2 bg-red-500 text-white rounded">
+                          Extra Wide Button
+                        </button>
                       </div>
-                    ))}
+                    </div>
+                  </SimpleSquircle>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium">Auto Height with Tall Content</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50">
+                  <SimpleSquircle
+                    width={200}
+                    height="auto"
+                    className="bg-pink-100"
+                    debug={debugMode}
+                  >
+                    <div className="p-4">
+                      Line 1<br />
+                      Line 2<br />
+                      Line 3<br />
+                      Line 4<br />
+                      Line 5<br />
+                    </div>
+                  </SimpleSquircle>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium">Full Width with Minimum Height</h3>
+                <div className="border border-dashed border-gray-300 p-4 bg-gray-50">
+                  <SimpleSquircle
+                    width="full"
+                    height={40}
+                    padding="0.5rem"
+                    className="bg-orange-100"
+                    debug={debugMode}
+                  >
+                    <div className="flex items-center justify-center">Fixed height bar</div>
+                  </SimpleSquircle>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Full Width & Height Tests */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Full Width & Height Tests</h2>
+
+            <div className="space-y-6">
+              {/* Basic Full Width Test */}
+              <div>
+                <h3 className="font-medium">Basic Full Width Test</h3>
+                <p className="text-sm text-gray-500 mb-2">
+                  Container: 100% width of parent, auto height
+                </p>
+                <div className="border border-dashed border-blue-300 p-4 bg-gray-50 relative">
+                  <SquircleDebugOverlay width="full" height="auto">
+                    <SimpleSquircle
+                      width="full"
+                      height="auto"
+                      className="bg-yellow-100"
+                      debug={debugMode}
+                    >
+                      <div className="p-4">Full width with auto height content</div>
+                    </SimpleSquircle>
+                  </SquircleDebugOverlay>
+                </div>
+              </div>
+
+              {/* Fixed Height Container with Full Width/Height Squircle */}
+              <div>
+                <h3 className="font-medium">Full Width & Height in Fixed Container</h3>
+                <p className="text-sm text-gray-500 mb-2">
+                  Container: 100% width with fixed 200px height
+                </p>
+                <div className="border border-dashed border-blue-300 p-4 bg-gray-50 relative h-52">
+                  <div className="absolute top-0 right-0 bg-black text-white text-xs px-1">
+                    Container: h-52 (208px)
+                  </div>
+                  <SquircleDebugOverlay width="full" height="full">
+                    <SimpleSquircle
+                      width="full"
+                      height="full"
+                      className="bg-blue-100"
+                      debug={debugMode}
+                    >
+                      <div className="flex items-center justify-center h-full">
+                        100% width & height filling container
+                      </div>
+                    </SimpleSquircle>
+                  </SquircleDebugOverlay>
+                </div>
+              </div>
+
+              {/* Nested Container Test */}
+              <div>
+                <h3 className="font-medium">Nested Full Width/Height</h3>
+                <p className="text-sm text-gray-500 mb-2">
+                  Container: 50% width of parent with fixed 150px height
+                </p>
+                <div className="border border-dashed border-blue-300 p-4 bg-gray-50 relative">
+                  <div className="w-1/2 h-36 border border-dashed border-red-300 relative">
+                    <div className="absolute top-0 right-0 bg-black text-white text-xs px-1">
+                      50% × 150px
+                    </div>
+                    <SquircleDebugOverlay width="full" height="full">
+                      <SimpleSquircle
+                        width="full"
+                        height="full"
+                        className="bg-green-100"
+                        debug={debugMode}
+                      >
+                        <div className="flex items-center justify-center h-full">
+                          100% of 50% container
+                        </div>
+                      </SimpleSquircle>
+                    </SquircleDebugOverlay>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Flex Layout Test */}
+              <div>
+                <h3 className="font-medium">Full Width/Height in Flex Layout</h3>
+                <p className="text-sm text-gray-500 mb-2">
+                  Container: Flex parent with fixed height
+                </p>
+                <div className="border border-dashed border-blue-300 p-4 bg-gray-50 relative">
+                  <div className="flex h-40 space-x-4">
+                    <div className="w-1/2 relative">
+                      <div className="absolute top-0 right-0 bg-black text-white text-xs px-1">
+                        50% width
+                      </div>
+                      <SquircleDebugOverlay width="full" height="full">
+                        <SimpleSquircle
+                          width="full"
+                          height="full"
+                          className="bg-purple-100"
+                          debug={debugMode}
+                        >
+                          <div className="flex items-center justify-center h-full p-4">
+                            Left Column
+                          </div>
+                        </SimpleSquircle>
+                      </SquircleDebugOverlay>
+                    </div>
+                    <div className="w-1/2 relative">
+                      <div className="absolute top-0 right-0 bg-black text-white text-xs px-1">
+                        50% width
+                      </div>
+                      <SquircleDebugOverlay width="full" height="full">
+                        <SimpleSquircle
+                          width="full"
+                          height="full"
+                          className="bg-pink-100"
+                          debug={debugMode}
+                        >
+                          <div className="flex items-center justify-center h-full p-4">
+                            Right Column
+                          </div>
+                        </SimpleSquircle>
+                      </SquircleDebugOverlay>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          
-          {/* Code */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Code</h2>
-            
-            <div className="relative">
-              <pre className="bg-gray-800 text-white p-4 rounded-md overflow-auto text-sm">
-                <code>{generateCode()}</code>
-              </pre>
-              <button 
-                onClick={copyCodeToClipboard}
-                className="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded text-xs"
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-          
+
           {/* Toast Notification */}
           {showToast && (
             <div className="fixed bottom-4 right-4 bg-green-500 text-white py-2 px-4 rounded shadow-lg">
               Code copied to clipboard!
             </div>
           )}
-          
-          {/* Examples */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Examples</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card Example (Solid Border via Props) */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Card (Solid Border via Props)</p>
-                <SimpleSquircle
-                  width="full"
-                  height="auto"
-                  borderRadius={16}
-                  padding="1.5rem"
-                  className="bg-white" // Background via className
-                  // Solid border via props
-                  border={2} 
-                  borderColor="#3b82f6"
-                  borderStyle="solid"
-                >
-                  <h3 className="font-bold text-lg mb-2">Card Title</h3>
-                  <p className="text-gray-600 text-sm">
-                    Solid border follows shape (uses props).
-                  </p>
-                </SimpleSquircle>
-              </div>
-
-              {/* Image Container (Border via Tailwind - Rectangular) */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Image (Border via Tailwind - Rectangular)</p>
-                <SimpleSquircle
-                  width="full"
-                  height="auto"
-                  borderRadius={16}
-                  padding="0" // No internal padding needed
-                  className="bg-white border-2 border-emerald-500" // Tailwind controls border (rect)
-                >
-                  <img 
-                    src="https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" 
-                    alt="Nature landscape"
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-1">Beautiful Nature</h3>
-                    <p className="text-gray-600 text-sm">
-                      Border applied via className (rectangular).
-                    </p>
-                  </div>
-                </SimpleSquircle>
-              </div>
-
-              {/* Button Group (Borders via Tailwind - Rectangular) */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Buttons (Borders via Tailwind - Rectangular)</p>
-                <div className="flex gap-4">
-                  {/* Primary Button (No Border) */}
-                  <SimpleSquircle
-                    as="button" // Render as button
-                    width="auto"
-                    height="auto"
-                    borderRadius={12}
-                    padding="0" // Control padding via className
-                    className="bg-indigo-600 text-white font-medium px-5 py-2.5 hover:bg-indigo-700 transition-colors" // No border classes
-                  >
-                    Primary
-                  </SimpleSquircle>
-                  
-                  {/* Secondary Button (Border via Tailwind) */} 
-                  <SimpleSquircle
-                    as="button"
-                    width="auto"
-                    height="auto"
-                    borderRadius={12}
-                    padding="0"
-                    className="bg-white text-indigo-600 font-medium px-5 py-2.5 border border-indigo-600 hover:bg-indigo-50 transition-colors" // Tailwind controls border (rect)
-                  >
-                    Secondary
-                  </SimpleSquircle>
-                </div>
-              </div>
-
-              {/* Hover Border Example (via Tailwind - Rectangular) */} 
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Hover Border (via Tailwind - Rectangular)</p>
-                <SimpleSquircle
-                  width="full"
-                  height="auto"
-                  borderRadius={16}
-                  padding="1.5rem"
-                  className="bg-slate-50 border-2 border-transparent hover:border-blue-500 transition-colors duration-300 ease-in-out" // Tailwind hover controls border (rect)
-                >
-                  <h3 className="font-bold text-lg mb-2">Hover to see border</h3>
-                  <p className="text-gray-600 text-sm">
-                    Border appears on hover via className (rectangular).
-                  </p>
-                </SimpleSquircle>
-              </div>
-              
-              {/* Dashed Border Example (via Tailwind - Rectangular) */}
-              <div className="space-y-2">
-                  <p className="text-sm font-medium">Dashed Border (via Tailwind - Rectangular)</p>
-                  <SimpleSquircle
-                      width="full"
-                      height="auto"
-                      borderRadius={20}
-                      padding="1.5rem"
-                      className="bg-amber-50 border-2 border-dashed border-amber-500" // Tailwind controls dashed border (rect)
-                  >
-                      <p className="text-center text-amber-800">Dashed border applied via className (rectangular).</p>
-                  </SimpleSquircle>
-              </div>
-
-              {/* Solid Border via Props + Hover */}
-              <div className="space-y-2">
-                  <p className="text-sm font-medium">Solid Border + Hover (via Props - Follows Shape)</p>
-                  <SimpleSquircle
-                      width="full"
-                      height="auto"
-                      borderRadius={20}
-                      padding="1.5rem"
-                      className="bg-fuchsia-100" // Background via className
-                      // Solid border + Hover via props
-                      border={4}
-                      borderColor="#d946ef" // Fuchsia 500
-                      borderStyle="solid"
-                      hoverEffect={true}
-                      initialOpacity={20} // Slightly visible initially
-                      hoverOpacity={100} // Fully opaque on hover
-                      hoverTransition="0.2s ease-out"
-                  >
-                      <p className="text-center text-fuchsia-900">Solid border hover effect (uses props, follows shape).</p>
-                  </SimpleSquircle>
-              </div>
-
-            </div>
-          </div>
         </div>
       </div>
     </main>

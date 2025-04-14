@@ -1,0 +1,22 @@
+module.exports = {
+  semi: true,
+  singleQuote: true,
+  tabWidth: 2,
+  useTabs: false,
+  trailingComma: 'es5',
+  printWidth: 100,
+  jsxSingleQuote: false,
+  bracketSpacing: true,
+  bracketSameLine: false,
+  arrowParens: 'always',
+  endOfLine: 'lf',
+  quoteProps: 'as-needed',
+  jsxBracketSameLine: false,
+  htmlWhitespaceSensitivity: 'css',
+  embeddedLanguageFormatting: 'auto',
+  singleAttributePerLine: false,
+  // Sort JSX props alphabetically for better organization
+  importOrder: ['^react$', '^next', '^@/(.*)$', '^[./]'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
+};
