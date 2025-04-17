@@ -21,12 +21,16 @@
     "@heroicons/react": "^2.2.0",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@silk-hq/components": "^0.8.15",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.7.4",
     "lucide-react": "^0.487.0",
+    "motion": "^12.7.4",
     "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "recharts": "^2.15.2"
+    "recharts": "^2.15.2",
+    "tailwind-merge": "^3.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
