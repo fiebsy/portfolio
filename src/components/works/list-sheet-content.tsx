@@ -1,7 +1,7 @@
 'use client';
 
-import Badge from '@/components/ui/badge';
 import { CloseButton } from '@/components/ui/close-button';
+import SquircleBadge from '@/components/ui/squircle-badge';
 import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
 import { ArrowUpRight } from 'lucide-react';
 import { RefObject, useRef, useState } from 'react';
@@ -201,7 +201,7 @@ export default function ListSheetContent({
                     Quick links
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    <Badge
+                    <SquircleBadge
                       size="sm"
                       variant="outline"
                       rightIcon={ArrowUpRight}
@@ -209,8 +209,8 @@ export default function ListSheetContent({
                       url="https://bnocs.com"
                     >
                       bnocs.com
-                    </Badge>
-                    <Badge
+                    </SquircleBadge>
+                    <SquircleBadge
                       size="sm"
                       variant="outline"
                       rightIcon={ArrowUpRight}
@@ -218,8 +218,8 @@ export default function ListSheetContent({
                       url="https://zcn.fun"
                     >
                       zcn.fun
-                    </Badge>
-                    <Badge
+                    </SquircleBadge>
+                    <SquircleBadge
                       size="sm"
                       variant="outline"
                       rightIcon={ArrowUpRight}
@@ -227,8 +227,8 @@ export default function ListSheetContent({
                       url="https://beratrack.com"
                     >
                       beratrack.com
-                    </Badge>
-                    <Badge
+                    </SquircleBadge>
+                    <SquircleBadge
                       size="sm"
                       variant="outline"
                       rightIcon={ArrowUpRight}
@@ -236,8 +236,8 @@ export default function ListSheetContent({
                       url="https://whop.pickaxe.it"
                     >
                       whop.pickaxe.it
-                    </Badge>
-                    <Badge
+                    </SquircleBadge>
+                    <SquircleBadge
                       size="sm"
                       variant="outline"
                       rightIcon={ArrowUpRight}
@@ -245,8 +245,8 @@ export default function ListSheetContent({
                       url="https://pickaxe.it"
                     >
                       pickaxe.it
-                    </Badge>
-                    <Badge
+                    </SquircleBadge>
+                    <SquircleBadge
                       size="sm"
                       variant="outline"
                       rightIcon={ArrowUpRight}
@@ -254,7 +254,7 @@ export default function ListSheetContent({
                       url="https://droppy.info"
                     >
                       droppy.info
-                    </Badge>
+                    </SquircleBadge>
                   </div>
                   {/* Bottom padding for safe area */}
                   <div className="h-8" />

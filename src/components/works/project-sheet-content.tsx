@@ -1,8 +1,8 @@
 'use client';
 
-import Badge from '@/components/ui/badge';
 import { CloseButton } from '@/components/ui/close-button';
 import SimpleSquircle from '@/components/ui/simple-squircle';
+import SquircleBadge from '@/components/ui/squircle-badge';
 import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
 import { ArrowUpRight, BadgeCheck, CodeXml, Palette } from 'lucide-react';
 import Image from 'next/image';
@@ -208,26 +208,26 @@ export default function ProjectSheetContent({
                                 {projects[activeVideoIndex].roles.some((role) =>
                                   role.includes('Design')
                                 ) && (
-                                  <Badge
+                                  <SquircleBadge
                                     size="sm"
                                     variant="default"
                                     leftIcon={Palette}
                                     roundnessLevel={3}
                                   >
                                     Designer
-                                  </Badge>
+                                  </SquircleBadge>
                                 )}
                                 {projects[activeVideoIndex].roles.some((role) =>
                                   role.includes('Engineering')
                                 ) && (
-                                  <Badge
+                                  <SquircleBadge
                                     size="sm"
                                     variant="default"
                                     leftIcon={CodeXml}
                                     roundnessLevel={3}
                                   >
                                     Engineer
-                                  </Badge>
+                                  </SquircleBadge>
                                 )}
                               </div>
                             </div>
