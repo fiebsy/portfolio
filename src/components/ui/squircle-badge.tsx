@@ -32,9 +32,9 @@ const sizeClasses = {
 };
 
 const sizePadding = {
-  sm: '6px 10px',
-  md: '8px 12px',
-  lg: '10px 16px',
+  sm: '6px 12px 6px 10px',
+  md: '8px 14px 8px 12px',
+  lg: '10px 18px 10px 16px',
 };
 
 const variantStyles = {
@@ -54,7 +54,7 @@ const variantStyles = {
   },
   surface: {
     bg: 'bg-gray-5',
-    text: 'text-gray-16',
+    text: 'text-gray-13',
     border: 0,
     borderColor: 'transparent',
     hoverEffect: false,
@@ -93,7 +93,7 @@ const SquircleBadge = React.forwardRef<HTMLDivElement, SquircleBadgeProps>(
       // Handle Lottie animation
       if (typeof icon === 'string' && icon.includes('.json')) {
         return (
-          <div className={`flex items-center ${position === 'left' ? 'mr-2' : 'ml-2'}`}>
+          <div className={`flex items-center ${position === 'left' ? 'mr-2' : 'ml-2 mr-1'}`}>
             <Player src={icon} className={`inline-block ${iconSizeClasses[size]}`} autoplay loop />
           </div>
         );
@@ -105,7 +105,7 @@ const SquircleBadge = React.forwardRef<HTMLDivElement, SquircleBadgeProps>(
         return (
           <div
             className={`flex items-center ${iconSizeClasses[size]} ${
-              position === 'left' ? 'mr-1.5' : 'ml-1.5'
+              position === 'left' ? 'mr-1.5' : 'ml-1.5 mr-0.5'
             }`}
           >
             <IconComponent className="w-full h-full" />
@@ -117,7 +117,7 @@ const SquircleBadge = React.forwardRef<HTMLDivElement, SquircleBadgeProps>(
     };
 
     const content = (
-      <div className="flex items-center justify-center gap-1">
+      <div className="flex items-center justify-center gap-1.5">
         {renderIcon(leftIcon, 'left')}
         {!iconOnly && <span>{children}</span>}
         {renderIcon(rightIcon, 'right')}
