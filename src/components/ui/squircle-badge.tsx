@@ -46,11 +46,11 @@ const variantStyles = {
     hoverEffect: false,
   },
   outline: {
-    bg: 'bg-transparent',
-    text: 'text-gray-9 hover:text-gray-13',
+    bg: 'bg-gray-2',
+    text: 'text-gray-13 hover:text-gray-16',
     border: 1,
-    borderColor: '#e0e0e0',
-    hoverEffect: 'hover:bg-gray-4/70 hover:border-gray-5 transition-all duration-200',
+    borderColor: '#e9e9e9', // gray-3
+    hoverEffect: 'hover:bg-[#FFF4EB] hover:border-[#FFD0AD] transition-all duration-200', // Fuego color
   },
   surface: {
     bg: 'bg-gray-5',
