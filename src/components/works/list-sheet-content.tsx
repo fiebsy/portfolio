@@ -113,7 +113,9 @@ function ListItem({
           className="transition-transform duration-200 ease-out space-y-0.5"
           style={{ transform: isHovering ? 'translateY(-2px)' : 'translateY(0)' }}
         >
-          <h3 className="font-bold font-display text-xl text-gray-13">{project.title}</h3>
+          <h3 className="font-bold font-display text-lg sm:text-xl text-gray-13">
+            {project.title}
+          </h3>
           <p className="font-display  text-xs text-gray-10">
             {project.company} • {project.year}
           </p>

@@ -6,7 +6,7 @@ import SquircleBadge from '@/components/ui/squircle-badge';
 import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
 import { ArrowUpRight, BadgeCheck, CodeXml, Palette } from 'lucide-react';
 import Image from 'next/image';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import type { Project } from './projects-data';
 import { sheetStyles } from './sheet-styles';
 
@@ -40,15 +40,8 @@ export default function ProjectSheetContent({
   videoUrls,
   isLoading,
 }: ProjectSheetContentProps) {
-  const playAttemptRef = useRef<number>(0);
-
-  // Add state variables for video loading status
   const [isMainVideoLoaded, setIsMainVideoLoaded] = useState(false);
   const [isFeatureVideoLoaded, setIsFeatureVideoLoaded] = useState(false);
-
-  // Add handlers for when videos are loaded
-  const handleMainVideoLoaded = () => setIsMainVideoLoaded(true);
-  const handleFeatureVideoLoaded = () => setIsFeatureVideoLoaded(true);
 
   // Reset loading state when activeProjectIndex changes
   useEffect(() => {
@@ -56,92 +49,8 @@ export default function ProjectSheetContent({
     setIsFeatureVideoLoaded(false);
   }, [activeProjectIndex]);
 
-  // Get video URLs from props
+  // Simplified video URL getter
   const getVideoUrl = (path: string) => videoUrls[path] || path;
-
-  // Safer approach to play video with retry logic
-  const safelyPlayVideo = (videoElement: HTMLVideoElement | null) => {
-    if (!videoElement) return;
-
-    // Preload the video to ensure it's ready
-    videoElement.preload = 'auto';
-
-    // Only try to play if the video is properly loaded
-    const attemptPlay = () => {
-      // Check if video element still exists in the DOM
-      if (!videoElement.isConnected) return;
-
-      // Check if video is ready to play
-      if (videoElement.readyState >= 2) {
-        const playPromise = videoElement.play();
-
-        // Handle the play promise properly
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            // If autoplay was prevented (common on mobile)
-            if (error.name === 'NotAllowedError') {
-              console.log('Autoplay not allowed. User must interact first.');
-            } else {
-              console.log('Play error:', error.message);
-
-              // Try again if video is still connected to DOM
-              if (videoElement.isConnected && playAttemptRef.current < 3) {
-                playAttemptRef.current++;
-                setTimeout(attemptPlay, 300);
-              }
-            }
-          });
-        }
-      } else {
-        // If video isn't ready yet, wait for it
-        setTimeout(attemptPlay, 100);
-      }
-    };
-
-    // Start playback attempt
-    attemptPlay();
-  };
-
-  // Auto-play the video when the component mounts or activeProjectIndex changes
-  useEffect(() => {
-    playAttemptRef.current = 0;
-
-    if (activeProjectIndex !== null) {
-      const video = sheetVideoRefs.current[activeProjectIndex];
-
-      // Add event listeners for better playback control
-      if (video) {
-        // Handle video loading
-        const handleCanPlay = () => {
-          safelyPlayVideo(video);
-        };
-
-        // Setup listeners
-        video.addEventListener('canplaythrough', handleCanPlay);
-        video.addEventListener('loadeddata', handleCanPlay);
-
-        // Initial play attempt (if already loaded)
-        safelyPlayVideo(video);
-
-        // Cleanup
-        return () => {
-          // Only run if video is still in DOM
-          if (video.isConnected) {
-            video.removeEventListener('canplaythrough', handleCanPlay);
-            video.removeEventListener('loadeddata', handleCanPlay);
-
-            // Try to safely pause
-            try {
-              video.pause();
-              video.currentTime = 0;
-            } catch {
-              // Ignore errors from trying to pause
-            }
-          }
-        };
-      }
-    }
-  }, [activeProjectIndex, sheetVideoRefs]);
 
   return (
     <>
@@ -185,45 +94,43 @@ export default function ProjectSheetContent({
                     <Sheet.Title asChild>
                       <div>
                         {/* Video */}
-                        <div className="w-full overflow-hidden mb-12 ">
-                          {isLoading && activeProjectIndex !== null ? (
+                        <div className="w-full overflow-hidden mb-12">
+                          {isLoading ? (
                             <div className="w-full h-56 bg-gray-5 animate-pulse"></div>
                           ) : (
                             <div className="relative">
-                              {/* Placeholder that shows until video is loaded */}
-                              {!isMainVideoLoaded && activeProjectIndex !== null && (
+                              {!isMainVideoLoaded && (
                                 <div className="absolute inset-0 bg-gray-5 z-10"></div>
                               )}
-
                               <video
                                 ref={(el) => {
-                                  if (activeProjectIndex !== null) {
+                                  if (activeProjectIndex !== null && el) {
                                     sheetVideoRefs.current[activeProjectIndex] = el;
+                                    // Set playsinline attribute directly for iOS
+                                    el.setAttribute('playsinline', '');
+                                    el.setAttribute('webkit-playsinline', '');
                                   }
                                 }}
+                                autoPlay
                                 muted
                                 playsInline
                                 loop
                                 preload="auto"
-                                onLoadedData={handleMainVideoLoaded}
-                                className={`w-full safari-video-fix transition-opacity duration-500 ${
+                                onLoadedData={() => setIsMainVideoLoaded(true)}
+                                className={`w-full safari-video-fix transition-opacity duration-300 ${
                                   isMainVideoLoaded ? 'opacity-100' : 'opacity-0'
                                 }`}
                                 style={{
                                   display: 'block',
                                   width: '100%',
                                   height: 'auto',
+                                  objectFit: 'cover',
                                 }}
                               >
                                 <source
-                                  src={
-                                    activeProjectIndex !== null
-                                      ? getVideoUrl(projects[activeProjectIndex].fullVideo)
-                                      : ''
-                                  }
+                                  src={getVideoUrl(projects[activeProjectIndex].fullVideo)}
                                   type="video/mp4"
                                 />
-                                Your browser does not support HTML video.
                               </video>
                             </div>
                           )}
@@ -418,34 +325,31 @@ export default function ProjectSheetContent({
                           borderColor="#e9e9e9"
                           height="320px"
                         >
-                          {isLoading && activeProjectIndex !== null ? (
+                          {isLoading ? (
                             <div className="w-full h-full bg-gray-5 animate-pulse"></div>
                           ) : (
                             <div className="relative w-full h-full">
-                              {/* Placeholder that shows until video is loaded */}
-                              {!isFeatureVideoLoaded && activeProjectIndex !== null && (
+                              {!isFeatureVideoLoaded && (
                                 <div className="absolute inset-0 bg-gray-5 z-10"></div>
                               )}
-
                               <video
                                 autoPlay
                                 muted
                                 playsInline
                                 loop
-                                onLoadedData={handleFeatureVideoLoaded}
-                                className={`w-full h-full object-cover transition-opacity duration-500 ${
+                                preload="auto"
+                                onLoadedData={() => setIsFeatureVideoLoaded(true)}
+                                className={`w-full h-full object-cover transition-opacity duration-300 ${
                                   isFeatureVideoLoaded ? 'opacity-100' : 'opacity-0'
                                 }`}
+                                style={{
+                                  display: 'block',
+                                }}
                               >
                                 <source
-                                  src={
-                                    activeProjectIndex !== null
-                                      ? getVideoUrl(projects[activeProjectIndex].featureVideo)
-                                      : ''
-                                  }
+                                  src={getVideoUrl(projects[activeProjectIndex].featureVideo)}
                                   type="video/mp4"
                                 />
-                                Your browser does not support HTML video.
                               </video>
                             </div>
                           )}
