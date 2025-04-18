@@ -1,9 +1,9 @@
 'use client';
 
-import Image from 'next/image';
-import React from 'react';
 import { SimpleSquircle } from '../ui/simple-squircle';
 import { SquircleButton } from '../ui/squircle-button';
+import Image from 'next/image';
+import React from 'react';
 
 interface FeebsModalProps {
   className?: string;

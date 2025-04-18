@@ -1,8 +1,8 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { forwardRef, useRef } from 'react';
 import { XIcon, type XIconHandle } from './x';
+import { forwardRef, useRef } from 'react';
+import { cn } from '@/lib/utils';
 
 interface CloseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: number;

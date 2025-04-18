@@ -1,14 +1,15 @@
 'use client';
 
-import { CloseButton } from '@/components/ui/close-button';
+import { ArrowUpRight, BadgeCheck, CodeXml, Palette } from 'lucide-react';
+import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import SimpleSquircle from '@/components/ui/simple-squircle';
 import SquircleBadge from '@/components/ui/squircle-badge';
-import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
-import { ArrowUpRight, BadgeCheck, CodeXml, Palette } from 'lucide-react';
-import Image from 'next/image';
-import { RefObject, useEffect, useRef } from 'react';
+import { CloseButton } from '@/components/ui/close-button';
+import { getVideoUrlFromBlob } from '@/app/actions/videos';
 import type { Project } from './projects-data';
 import { sheetStyles } from './sheet-styles';
+import Image from 'next/image';
 
 // Map tech stack names to their SVG paths
 const techLogos: Record<string, string> = {
@@ -26,17 +27,35 @@ const techLogos: Record<string, string> = {
 };
 
 interface ProjectSheetContentProps {
-  activeVideoIndex: number | null;
+  activeProjectIndex: number | null;
   projects: Project[];
   sheetVideoRefs: RefObject<Array<HTMLVideoElement | null>>;
 }
 
 export default function ProjectSheetContent({
-  activeVideoIndex,
+  activeProjectIndex,
   projects,
   sheetVideoRefs,
 }: ProjectSheetContentProps) {
   const playAttemptRef = useRef<number>(0);
+  const [mainVideoUrl, setMainVideoUrl] = useState<string>('');
+  const [featureVideoUrl, setFeatureVideoUrl] = useState<string>('');
+
+  // Fetch video URLs from Vercel Blob when the active project changes
+  useEffect(() => {
+    const fetchVideoUrls = async () => {
+      if (activeProjectIndex !== null) {
+        const project = projects[activeProjectIndex];
+        const mainUrl = await getVideoUrlFromBlob(project.fullVideo);
+        const featureUrl = await getVideoUrlFromBlob(project.featureVideo);
+
+        setMainVideoUrl(mainUrl);
+        setFeatureVideoUrl(featureUrl);
+      }
+    };
+
+    fetchVideoUrls();
+  }, [activeProjectIndex, projects]);
 
   // Safer approach to play video with retry logic
   const safelyPlayVideo = (videoElement: HTMLVideoElement | null) => {
@@ -81,12 +100,12 @@ export default function ProjectSheetContent({
     attemptPlay();
   };
 
-  // Auto-play the video when the component mounts or activeVideoIndex changes
+  // Auto-play the video when the component mounts or activeProjectIndex changes
   useEffect(() => {
     playAttemptRef.current = 0;
 
-    if (activeVideoIndex !== null) {
-      const video = sheetVideoRefs.current[activeVideoIndex];
+    if (activeProjectIndex !== null) {
+      const video = sheetVideoRefs.current[activeProjectIndex];
 
       // Add event listeners for better playback control
       if (video) {
@@ -120,7 +139,7 @@ export default function ProjectSheetContent({
         };
       }
     }
-  }, [activeVideoIndex, sheetVideoRefs]);
+  }, [activeProjectIndex, sheetVideoRefs, mainVideoUrl]);
 
   return (
     <>
@@ -157,7 +176,7 @@ export default function ProjectSheetContent({
 
           <Scroll.View className="long-sheet-scroll-view" scrollGestureTrap={true}>
             <Scroll.Content className="project-sheet-scroll-content">
-              {activeVideoIndex !== null && (
+              {activeProjectIndex !== null && (
                 <div className="flex flex-col">
                   {/* Hero Section: Video + Title */}
                   <div className="mb-8">
@@ -167,11 +186,10 @@ export default function ProjectSheetContent({
                         <div className="w-full overflow-hidden mb-12 ">
                           <video
                             ref={(el) => {
-                              if (activeVideoIndex !== null) {
-                                sheetVideoRefs.current[activeVideoIndex] = el;
+                              if (activeProjectIndex !== null) {
+                                sheetVideoRefs.current[activeProjectIndex] = el;
                               }
                             }}
-                            src={projects[activeVideoIndex].fullVideo}
                             muted
                             playsInline
                             loop
@@ -182,7 +200,18 @@ export default function ProjectSheetContent({
                               width: '100%',
                               height: 'auto',
                             }}
-                          />
+                          >
+                            <source
+                              src={
+                                mainVideoUrl ||
+                                (activeProjectIndex !== null
+                                  ? projects[activeProjectIndex].fullVideo
+                                  : '')
+                              }
+                              type="video/mp4"
+                            />
+                            Your browser does not support HTML video.
+                          </video>
                         </div>
 
                         {/* Title Content */}
@@ -190,21 +219,21 @@ export default function ProjectSheetContent({
                           <div className="flex flex-col space-y-2">
                             <p className="text-md text-gray-11 font-medium">
                               <a
-                                href={projects[activeVideoIndex].companyUrl}
+                                href={projects[activeProjectIndex].companyUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="underline underline-offset-2 hover:text-gray-13 transition-colors"
                               >
-                                {projects[activeVideoIndex].company}
+                                {projects[activeProjectIndex].company}
                               </a>{' '}
-                              • {projects[activeVideoIndex].year}
+                              • {projects[activeProjectIndex].year}
                             </p>
                             <div className="flex items-center justify-between">
                               <h2 className="text-4xl font-display font-bold text-gray-16">
-                                {projects[activeVideoIndex].title}
+                                {projects[activeProjectIndex].title}
                               </h2>
                               <div className="flex flex-wrap gap-2 ml-4">
-                                {projects[activeVideoIndex].roles.some((role) =>
+                                {projects[activeProjectIndex].roles.some((role) =>
                                   role.includes('Design')
                                 ) && (
                                   <SquircleBadge
@@ -216,7 +245,7 @@ export default function ProjectSheetContent({
                                     Designer
                                   </SquircleBadge>
                                 )}
-                                {projects[activeVideoIndex].roles.some((role) =>
+                                {projects[activeProjectIndex].roles.some((role) =>
                                   role.includes('Engineering')
                                 ) && (
                                   <SquircleBadge
@@ -265,18 +294,18 @@ export default function ProjectSheetContent({
                           {/* Centered text content */}
                           <div className="w-full h-full flex items-center justify-center">
                             <p className="font-display text-2xl max-w-[80%] text-left">
-                              {projects[activeVideoIndex].formattedSummary ? (
+                              {projects[activeProjectIndex].formattedSummary ? (
                                 <>
                                   <span className="text-gray-16">
-                                    {projects[activeVideoIndex].formattedSummary.firstPart}
+                                    {projects[activeProjectIndex].formattedSummary.firstPart}
                                   </span>{' '}
                                   <span className="text-gray-10">
-                                    {projects[activeVideoIndex].formattedSummary.secondPart}
+                                    {projects[activeProjectIndex].formattedSummary.secondPart}
                                   </span>
                                 </>
                               ) : (
                                 <span className="text-gray-16">
-                                  {projects[activeVideoIndex].summary}
+                                  {projects[activeProjectIndex].summary}
                                 </span>
                               )}
                             </p>
@@ -288,13 +317,13 @@ export default function ProjectSheetContent({
                     </section>
 
                     {/* ADDED: Overview Section */}
-                    {projects[activeVideoIndex]?.overviewSection && (
+                    {projects[activeProjectIndex]?.overviewSection && (
                       <section className="mb-12">
                         <h3 className="uppercase tracking-widest text-xs font-bold text-gray-10 mb-5">
                           Overview
                         </h3>
                         <p className="text-gray-11 leading-7 text-lg font-semibold">
-                          {projects[activeVideoIndex].overviewSection}
+                          {projects[activeProjectIndex].overviewSection}
                         </p>
                       </section>
                     )}
@@ -327,7 +356,7 @@ export default function ProjectSheetContent({
                                 </h3>
                               </div>
                               <p className="font-semibold leading-7 max-w-[400px] text-red-900/90">
-                                {projects[activeVideoIndex].problem}
+                                {projects[activeProjectIndex].problem}
                               </p>
                             </div>
                           </SimpleSquircle>
@@ -357,7 +386,7 @@ export default function ProjectSheetContent({
                                 </h3>
                               </div>
                               <p className="font-semibold leading-7 max-w-[400px] text-green-900/90">
-                                {projects[activeVideoIndex].solution}
+                                {projects[activeProjectIndex].solution}
                               </p>
                             </div>
                           </SimpleSquircle>
@@ -380,8 +409,18 @@ export default function ProjectSheetContent({
                             playsInline
                             loop
                             className="w-full h-full object-cover"
-                            src={projects[activeVideoIndex].featureVideo}
-                          />
+                          >
+                            <source
+                              src={
+                                featureVideoUrl ||
+                                (activeProjectIndex !== null
+                                  ? projects[activeProjectIndex].featureVideo
+                                  : '')
+                              }
+                              type="video/mp4"
+                            />
+                            Your browser does not support HTML video.
+                          </video>
                         </SimpleSquircle>
                       </div>
 
@@ -392,7 +431,7 @@ export default function ProjectSheetContent({
                             My role in the build
                           </h3>
                           <p className="text-gray-11 leading-7 text-lg font-semibold">
-                            {projects[activeVideoIndex].role}
+                            {projects[activeProjectIndex].role}
                           </p>
                         </div>
                       </div>
@@ -409,7 +448,7 @@ export default function ProjectSheetContent({
                           Impact & Metrics
                         </h3>
                         <div className="grid grid-cols-3 gap-3">
-                          {projects[activeVideoIndex].metrics.map((metric, index) => (
+                          {projects[activeProjectIndex].metrics.map((metric, index) => (
                             <SimpleSquircle
                               key={index}
                               className="bg-gray-2 flex flex-col items-center justify-center text-center"
@@ -434,7 +473,7 @@ export default function ProjectSheetContent({
                           Key Features
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
-                          {projects[activeVideoIndex].keyFeatures.map((feature, index) => (
+                          {projects[activeProjectIndex].keyFeatures.map((feature, index) => (
                             <div key={index} className="flex items-start gap-3">
                               <BadgeCheck
                                 size={14}
@@ -452,7 +491,7 @@ export default function ProjectSheetContent({
                           Tech Stack
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          {projects[activeVideoIndex].techStack.map((tech, index) => (
+                          {projects[activeProjectIndex].techStack.map((tech, index) => (
                             <SimpleSquircle
                               key={index}
                               className="bg-gray-2"
@@ -481,7 +520,7 @@ export default function ProjectSheetContent({
                       </div>
 
                       {/* Live Links */}
-                      {projects[activeVideoIndex].liveUrl && (
+                      {projects[activeProjectIndex].liveUrl && (
                         <div>
                           <h3 className="uppercase tracking-widest text-xs font-bold text-gray-10 mb-3">
                             View Live
@@ -495,12 +534,12 @@ export default function ProjectSheetContent({
                               borderColor="#e9e9e9"
                             >
                               <a
-                                href={projects[activeVideoIndex].liveUrl}
+                                href={projects[activeProjectIndex].liveUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center text-gray-13 font-medium text-sm"
                               >
-                                {projects[activeVideoIndex].liveUrl.replace(/^https?:\/\//, '')}
+                                {projects[activeProjectIndex].liveUrl.replace(/^https?:\/\//, '')}
                                 <ArrowUpRight className="ml-1 w-4 h-4" />
                               </a>
                             </SimpleSquircle>

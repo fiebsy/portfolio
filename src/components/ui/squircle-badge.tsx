@@ -1,9 +1,9 @@
 'use client';
 
+import SimpleSquircle from './simple-squircle';
 import { LucideIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import React from 'react';
-import SimpleSquircle from './simple-squircle';
 
 // Dynamically import the Lottie Player with no SSR
 const Player = dynamic(() => import('@lottiefiles/react-lottie-player').then((mod) => mod.Player), {

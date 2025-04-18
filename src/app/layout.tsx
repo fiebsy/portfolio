@@ -1,5 +1,5 @@
-import type { Metadata } from 'next';
 import { JetBrains_Mono, Manrope } from 'next/font/google';
+import type { Metadata } from 'next';
 import './globals.css';
 
 // Configure fonts with Next.js optimization

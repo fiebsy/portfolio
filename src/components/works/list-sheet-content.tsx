@@ -1,20 +1,21 @@
 'use client';
 
-import { CloseButton } from '@/components/ui/close-button';
-import SquircleBadge from '@/components/ui/squircle-badge';
-import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
-import { ArrowUpRight } from 'lucide-react';
-import { RefObject, useRef, useState } from 'react';
 import { ChevronRightIcon, type ChevronRightIconHandle } from '../ui/chevron-right';
+import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
+import { RefObject, useEffect, useRef, useState } from 'react';
+import SquircleBadge from '@/components/ui/squircle-badge';
+import { CloseButton } from '@/components/ui/close-button';
+import { getVideoUrlFromBlob } from '@/app/actions/videos';
 import SimpleSquircle from '../ui/simple-squircle';
 import type { Project } from './projects-data';
 import { sheetStyles } from './sheet-styles';
+import { ArrowUpRight } from 'lucide-react';
 
 interface ListItemProps {
   project: Project;
   index: number;
   videoRefs: RefObject<Array<HTMLVideoElement | null>>;
-  setActiveVideoIndex: (index: number) => void;
+  setActiveProjectIndex: (index: number) => void;
   openSheet: (sheetName: string) => void;
   isActive: boolean;
 }
@@ -23,12 +24,23 @@ function ListItem({
   project,
   index,
   videoRefs,
-  setActiveVideoIndex,
+  setActiveProjectIndex,
   openSheet,
   isActive,
 }: ListItemProps) {
   const chevronRef = useRef<ChevronRightIconHandle>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>(project.thumbnail);
+
+  // Fetch video URL from Vercel Blob
+  useEffect(() => {
+    const fetchVideoUrl = async () => {
+      const url = await getVideoUrlFromBlob(project.thumbnail);
+      setVideoUrl(url);
+    };
+
+    fetchVideoUrl();
+  }, [project.thumbnail]);
 
   const handleMouseEnter = () => {
     setIsHovering(true);
@@ -51,7 +63,7 @@ function ListItem({
 
   const handleClick = () => {
     chevronRef.current?.resetAnimation();
-    setActiveVideoIndex(index);
+    setActiveProjectIndex(index);
     openSheet('project-sheet');
   };
 
@@ -83,7 +95,6 @@ function ListItem({
             ref={(el) => {
               if (videoRefs.current) videoRefs.current[index] = el;
             }}
-            src={project.thumbnail}
             muted
             playsInline
             loop
@@ -93,7 +104,10 @@ function ListItem({
               minHeight: '100%' /* Ensures minimum height in Safari */,
               maxWidth: '100%' /* Prevents overflow in Safari */,
             }}
-          />
+          >
+            <source src={videoUrl} type="video/mp4" />
+            Your browser does not support HTML video.
+          </video>
         </div>
         <div
           className="transition-transform duration-200 ease-out space-y-0.5"
@@ -114,9 +128,9 @@ interface ListSheetContentProps {
   projects: Project[];
   videoRefs: RefObject<Array<HTMLVideoElement | null>>;
   isListSheetScaled: boolean;
-  setActiveVideoIndex: (index: number) => void;
+  setActiveProjectIndex: (index: number) => void;
   openSheet: (sheetName: string) => void;
-  activeVideoIndex: number | null;
+  activeProjectIndex: number | null;
   isProjectSheetActive: boolean;
 }
 
@@ -124,9 +138,9 @@ export default function ListSheetContent({
   projects,
   videoRefs,
   isListSheetScaled,
-  setActiveVideoIndex,
+  setActiveProjectIndex,
   openSheet,
-  activeVideoIndex,
+  activeProjectIndex,
   isProjectSheetActive,
 }: ListSheetContentProps) {
   return (
@@ -149,7 +163,7 @@ export default function ListSheetContent({
             <CloseButton
               size={24}
               style={{
-                opacity: isProjectSheetActive && activeVideoIndex !== null ? 0 : 1,
+                opacity: isProjectSheetActive && activeProjectIndex !== null ? 0 : 1,
                 transition: 'opacity 0.2s ease',
               }}
             />
@@ -188,9 +202,9 @@ export default function ListSheetContent({
                       project={project}
                       index={index}
                       videoRefs={videoRefs}
-                      setActiveVideoIndex={setActiveVideoIndex}
+                      setActiveProjectIndex={setActiveProjectIndex}
                       openSheet={openSheet}
-                      isActive={isProjectSheetActive && activeVideoIndex === index}
+                      isActive={isProjectSheetActive && activeProjectIndex === index}
                     />
                   ))}
                 </div>

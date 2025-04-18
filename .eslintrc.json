@@ -83,5 +83,23 @@
     "import/resolver": {
       "typescript": {}
     }
-  }
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.js"],
+      "parserOptions": {
+        "sourceType": "module",
+        "ecmaVersion": 2020
+      },
+      "env": {
+        "node": true,
+        "es2020": true
+      },
+      "rules": {
+        "no-console": "off", // Allow console in scripts
+        "import/no-commonjs": "error", // Prevent CommonJS syntax in ESM files
+        "@typescript-eslint/no-var-requires": "off" // Allow dynamic imports
+      }
+    }
+  ]
 }

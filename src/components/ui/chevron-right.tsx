@@ -1,10 +1,10 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import type { Transition } from 'framer-motion';
-import { motion, useAnimation } from 'framer-motion';
-import type { HTMLAttributes } from 'react';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
+import { motion, useAnimation } from 'framer-motion';
+import type { Transition } from 'framer-motion';
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils';
 
 export interface ChevronRightIconHandle {
   startAnimation: () => void;

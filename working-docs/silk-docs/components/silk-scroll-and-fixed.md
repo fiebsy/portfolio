@@ -199,6 +199,7 @@ nativeEvent: React.MouseEvent<HTMLElement, MouseEvent>;
 An event handler which runs when a press event (click event) is fired on the underlying HTML element.
 
 - **Examples**
+
   ```jsx
   // Will not force focus the underlying HTML element on press
 
@@ -206,6 +207,7 @@ An event handler which runs when a press event (click event) is fired on the und
     return <Scroll.Trigger onPress={{ forceFocus: false }}>Click me</Scroll.Trigger>;
   };
   ```
+
   ```jsx
   // Will not run the Trigger action
 

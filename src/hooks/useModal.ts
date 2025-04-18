@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 
@@ -24,4 +24,4 @@ const useModal = (initialState = false): UseModalReturn => {
   };
 };
 
-export default useModal; 
+export default useModal;

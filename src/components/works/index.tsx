@@ -1,11 +1,11 @@
 'use client';
 
 import { Sheet, SheetStack, createComponentId } from '@silk-hq/components';
-import { useEffect, useRef, useState } from 'react';
-import ListSheetContent from './list-sheet-content';
 import ProjectSheetContent from './project-sheet-content';
-import { projects } from './projects-data';
+import ListSheetContent from './list-sheet-content';
+import { useEffect, useRef, useState } from 'react';
 import { sheetStyles } from './sheet-styles';
+import { projects } from './projects-data';
 
 // Create component IDs
 const sheetStackId = createComponentId();
@@ -18,7 +18,7 @@ export function Works() {
   const [projectSheetDetent, setProjectSheetDetent] = useState(1);
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
   const sheetVideoRefs = useRef<Array<HTMLVideoElement | null>>([]);
-  const [activeVideoIndex, setActiveVideoIndex] = useState<number | null>(null);
+  const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
 
   const openSheet = (sheetName: string) => {
     if (!activeSheets.includes(sheetName)) {
@@ -102,9 +102,9 @@ export function Works() {
                 projects={projects}
                 videoRefs={videoRefs}
                 isListSheetScaled={isListSheetScaled}
-                setActiveVideoIndex={setActiveVideoIndex}
+                setActiveProjectIndex={setActiveProjectIndex}
                 openSheet={openSheet}
-                activeVideoIndex={activeVideoIndex}
+                activeProjectIndex={activeProjectIndex}
                 isProjectSheetActive={isSheetActive('project-sheet')}
               />
             </Sheet.View>
@@ -140,7 +140,7 @@ export function Works() {
                 }}
               />
               <ProjectSheetContent
-                activeVideoIndex={activeVideoIndex}
+                activeProjectIndex={activeProjectIndex}
                 projects={projects}
                 sheetVideoRefs={sheetVideoRefs}
               />

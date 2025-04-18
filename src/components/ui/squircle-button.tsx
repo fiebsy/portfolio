@@ -1,7 +1,7 @@
 'use client';
 
-import React, { ButtonHTMLAttributes, forwardRef } from 'react';
 import { SimpleSquircle, SimpleSquircleProps } from './simple-squircle';
+import React, { ButtonHTMLAttributes, forwardRef } from 'react';
 
 export interface SquircleButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'color'> {
