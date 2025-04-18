@@ -39,20 +39,11 @@ function ListItem({
   const handleMouseEnter = () => {
     setIsHovering(true);
     chevronRef.current?.startAnimation();
-    const video = videoRefs.current?.[index];
-    if (video) {
-      video.play().catch(console.error);
-    }
   };
 
   const handleMouseLeave = () => {
     setIsHovering(false);
     chevronRef.current?.completeAnimation();
-    const video = videoRefs.current?.[index];
-    if (video) {
-      video.pause();
-      video.currentTime = 0;
-    }
   };
 
   const handleClick = () => {
@@ -101,6 +92,7 @@ function ListItem({
                 muted
                 playsInline
                 loop
+                autoPlay
                 onLoadedData={handleVideoLoaded}
                 className={`w-[92px] h-full object-cover object-center safari-video-fix transition-opacity duration-300 ${
                   isVideoLoaded ? 'opacity-100' : 'opacity-0'
