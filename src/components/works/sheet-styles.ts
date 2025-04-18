@@ -35,6 +35,14 @@ export const sheetStyles = `
     border-radius: 40px;
   }
 
+  .list-sheet-content {
+    height: auto;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    border-radius: 40px;
+  }
+
   /* List Sheet Specific Styles */
   .list-sheet-scroll-content {
     height: auto;

@@ -18,7 +18,6 @@ interface ListItemProps {
   openSheet: (sheetName: string) => void;
   isActive: boolean;
   videoUrls: Record<string, string>;
-  isLoading: boolean;
 }
 
 function ListItem({
@@ -29,7 +28,6 @@ function ListItem({
   openSheet,
   isActive,
   videoUrls,
-  isLoading,
 }: ListItemProps) {
   const chevronRef = useRef<ChevronRightIconHandle>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -80,34 +78,30 @@ function ListItem({
           <div className="absolute right-16 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full hidden bg-green-500 shadow-sm animate-pulse"></div>
         )}
         <div className="w-[92px] h-[80px] relative flex-shrink-0 mr-3 overflow-hidden border-r border-gray-3">
-          {isLoading ? (
-            <div className="w-full h-full bg-gray-5 animate-pulse"></div>
-          ) : (
-            <>
-              {!isVideoLoaded && <div className="absolute inset-0 bg-gray-5 z-10"></div>}
-              <video
-                ref={(el) => {
-                  if (videoRefs.current) videoRefs.current[index] = el;
-                }}
-                muted
-                playsInline
-                loop
-                autoPlay
-                onLoadedData={handleVideoLoaded}
-                className={`w-[92px] h-full object-cover object-center safari-video-fix transition-opacity duration-300 ${
-                  isVideoLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-                style={{
-                  display: 'block' /* Forces block display for Safari */,
-                  minHeight: '100%' /* Ensures minimum height in Safari */,
-                  maxWidth: '100%' /* Prevents overflow in Safari */,
-                }}
-              >
-                <source src={videoUrl} type="video/mp4" />
-                Your browser does not support HTML video.
-              </video>
-            </>
+          {!isVideoLoaded && (
+            <div className="absolute inset-0 bg-gray-500 animate-pulse z-10"></div>
           )}
+          <video
+            ref={(el) => {
+              if (videoRefs.current) videoRefs.current[index] = el;
+            }}
+            muted
+            playsInline
+            loop
+            autoPlay
+            onLoadedData={handleVideoLoaded}
+            className={`w-[92px] h-full object-cover object-center safari-video-fix transition-opacity duration-300 ${
+              isVideoLoaded ? 'opacity-100' : 'opacity-0 '
+            }`}
+            style={{
+              display: 'block' /* Forces block display for Safari */,
+              minHeight: '100%' /* Ensures minimum height in Safari */,
+              maxWidth: '100%' /* Prevents overflow in Safari */,
+            }}
+          >
+            <source src={videoUrl} type="video/mp4" />
+            Your browser does not support HTML video.
+          </video>
         </div>
         <div
           className="transition-transform duration-200 ease-out space-y-0.5"
@@ -135,7 +129,6 @@ interface ListSheetContentProps {
   activeProjectIndex: number | null;
   isProjectSheetActive: boolean;
   videoUrls: Record<string, string>;
-  isLoading: boolean;
 }
 
 export default function ListSheetContent({
@@ -147,13 +140,12 @@ export default function ListSheetContent({
   activeProjectIndex,
   isProjectSheetActive,
   videoUrls,
-  isLoading,
 }: ListSheetContentProps) {
   return (
     <>
       <style jsx>{sheetStyles}</style>
       <Sheet.Content
-        className="universal-sheet-content"
+        className="list-sheet-content"
         style={{
           maxWidth: '420px',
           transform: isListSheetScaled ? 'translateY(-10px) scale(0.933)' : 'none',
@@ -212,7 +204,6 @@ export default function ListSheetContent({
                       openSheet={openSheet}
                       isActive={isProjectSheetActive && activeProjectIndex === index}
                       videoUrls={videoUrls}
-                      isLoading={isLoading}
                     />
                   ))}
                 </div>
