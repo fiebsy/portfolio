@@ -77,10 +77,8 @@ function ListItem({
         {isActive && (
           <div className="absolute right-16 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full hidden bg-green-500 shadow-sm animate-pulse"></div>
         )}
-        <div className="w-[92px] h-[80px] relative flex-shrink-0 mr-3 overflow-hidden border-r border-gray-3">
-          {!isVideoLoaded && (
-            <div className="absolute inset-0 bg-gray-500 animate-pulse z-10"></div>
-          )}
+        <div className="w-[92px] h-[80px] relative flex-shrink-0 mr-3 overflow-hidden border-r bg-gray-5 border-gray-3">
+          {!isVideoLoaded && <div className="absolute inset-0 bg-gray-5 animate-pulse z-10"></div>}
           <video
             ref={(el) => {
               if (videoRefs.current) videoRefs.current[index] = el;
@@ -90,7 +88,7 @@ function ListItem({
             loop
             autoPlay
             onLoadedData={handleVideoLoaded}
-            className={`w-[92px] h-full object-cover object-center safari-video-fix transition-opacity duration-300 ${
+            className={`w-[92px] h-full  object-cover object-center safari-video-fix transition-opacity duration-300 ${
               isVideoLoaded ? 'opacity-100' : 'opacity-0 '
             }`}
             style={{

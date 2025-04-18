@@ -217,6 +217,12 @@ export function Works() {
               swipeOvershoot={false}
               swipeDismissal={true}
               swipe={true}
+              enteringAnimationSettings={{
+                easing: 'spring',
+                stiffness: 480,
+                damping: 45,
+                mass: 1.5,
+              }}
             >
               <Sheet.Backdrop
                 data-sheet-backdrop
