@@ -1,16 +1,42 @@
 'use client';
 
-import { SimpleSquircle } from '../ui/simple-squircle';
-import { SquircleButton } from '../ui/squircle-button';
 import Image from 'next/image';
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import { type ChevronRightIconHandle } from '../ui/chevron-right';
+import { SimpleSquircle } from '../ui/simple-squircle';
 
 interface FeebsModalProps {
   className?: string;
   onButtonClick?: () => void;
+  isLoading?: boolean;
 }
 
-export const FeebsModal: React.FC<FeebsModalProps> = ({ className = '', onButtonClick }) => {
+export const FeebsModal: React.FC<FeebsModalProps> = ({
+  className = '',
+  onButtonClick,
+  isLoading = false,
+}) => {
+  const chevronRef = useRef<ChevronRightIconHandle>(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseEnter = () => {
+    if (isLoading) return;
+    setIsHovering(true);
+    chevronRef.current?.startAnimation();
+  };
+
+  const handleMouseLeave = () => {
+    if (isLoading) return;
+    setIsHovering(false);
+    chevronRef.current?.completeAnimation();
+  };
+
+  const handleClick = () => {
+    if (isLoading) return;
+    chevronRef.current?.resetAnimation();
+    onButtonClick?.();
+  };
+
   return (
     <SimpleSquircle
       className={`max-w-md mx-auto flex flex-col gap-8  bg-transparent ${className}`}
@@ -53,18 +79,38 @@ export const FeebsModal: React.FC<FeebsModalProps> = ({ className = '', onButton
       </div>
 
       {/* Button Section */}
-      <div className="flex w-full font-semibold">
-        <SquircleButton
-          height="auto"
-          padding="12px"
-          roundnessLevel={1}
-          variant="primary"
-          width="100%"
-          onClick={onButtonClick}
-        >
-          View my work
-        </SquircleButton>
-      </div>
+      <SimpleSquircle
+        className={`w-full  ${isLoading ? 'bg-gray-10' : isHovering ? 'bg-gray-13' : 'bg-gray-15'} transition-colors duration-200 ease-out`}
+        roundnessLevel={1}
+        height="auto"
+        width="100%"
+        padding={0}
+        hoverEffect={!isLoading}
+        hoverOpacity={60}
+        initialOpacity={100}
+        hoverTransition="0.2s ease-out"
+        style={{
+          transition: 'transform 0.3s ease-out, background-color 0.2s ease-out',
+          cursor: isLoading ? 'not-allowed' : 'pointer',
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+      >
+        <div className="w-full flex items-center justify-center text-white font-semibold px-4 py-3 relative">
+          {isLoading && (
+            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          )}
+          <div className="flex items-center justify-center font-display text-xl">
+            <span
+              className="transition-transform duration-200 ease-out"
+              style={{ transform: isHovering && !isLoading ? 'translateY(-1px)' : 'translateY(0)' }}
+            >
+              {isLoading ? 'Loading...' : 'View my work'}
+            </span>
+          </div>
+        </div>
+      </SimpleSquircle>
     </SimpleSquircle>
   );
 };

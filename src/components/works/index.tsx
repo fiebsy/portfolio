@@ -3,6 +3,7 @@
 import { getVideoUrlFromBlob } from '@/app/actions/videos';
 import { Sheet, SheetStack, createComponentId } from '@silk-hq/components';
 import { useEffect, useRef, useState } from 'react';
+import { FeebsModal } from '../landing-page/feebs-modal';
 import ListSheetContent from './list-sheet-content';
 import ProjectSheetContent from './project-sheet-content';
 import { projects } from './projects-data';
@@ -136,15 +137,11 @@ export function Works() {
     <div className="w-full flex flex-col items-center justify-center">
       <style jsx>{sheetStyles}</style>
 
-      <button
-        onClick={() => openSheet('list-sheet')}
-        disabled={isLoading}
-        className={`text-white font-medium py-3 px-6 rounded-lg text-lg transition-colors duration-200 ${
-          isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-        }`}
-      >
-        {isLoading ? 'Loading...' : 'View My Work'}
-      </button>
+      <FeebsModal
+        onButtonClick={() => openSheet('list-sheet')}
+        isLoading={isLoading}
+        className=""
+      />
 
       {/* Hidden preload section for videos */}
       <div className="sr-only" aria-hidden="true">

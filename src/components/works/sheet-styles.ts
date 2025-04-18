@@ -107,23 +107,6 @@ export const sheetStyles = `
 
   /* Animation Keyframes */
 
-  /* Test circle bounce animation */
-  @keyframes appear-bounce {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, -20px) scale(0.5);
-    }
-    50% {
-      opacity: 1;
-      transform: translate(-50%, 0) scale(1.1);
-    }
-    75% {
-      transform: translate(-50%, -5px) scale(0.95);
-    }
-    100% {
-      transform: translate(-50%, 0) scale(1);
-    }
-  }
 
   /* List item animation with slide up, fade in, and subtle scale */
   @keyframes slide-in {
@@ -143,10 +126,6 @@ export const sheetStyles = `
 
   /* Animation Classes */
 
-  /* Test circle animation class */
-  .animate-test-circle {
-    animation: appear-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
 
   /* List item animation class */
   .animate-list-item {

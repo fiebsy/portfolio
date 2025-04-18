@@ -111,7 +111,7 @@ export default function ProjectSheetContent({
                             loop
                             preload="auto"
                             onLoadedData={() => setIsMainVideoLoaded(true)}
-                            className={`w-full safari-video-fix transition-opacity duration-300 ${
+                            className={`h-[400px] safari-video-fix transition-opacity duration-300 ${
                               isMainVideoLoaded ? 'opacity-100' : 'opacity-0'
                             }`}
                             style={{
