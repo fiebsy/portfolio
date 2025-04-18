@@ -286,6 +286,19 @@ export default function ProjectSheetContent({
                         </div>
                       </SimpleSquircle>
                     </section>
+
+                    {/* ADDED: Overview Section */}
+                    {projects[activeVideoIndex]?.overviewSection && (
+                      <section className="mb-12">
+                        <h3 className="uppercase tracking-widest text-xs font-bold text-gray-10 mb-5">
+                          Overview
+                        </h3>
+                        <p className="text-gray-11 leading-7 text-lg font-semibold">
+                          {projects[activeVideoIndex].overviewSection}
+                        </p>
+                      </section>
+                    )}
+
                     {/* SECTION 1 (WAS 2): Problem/Solution + Video + Role */}
                     <section className="mb-32">
                       {/* Problem & Solution Section */}

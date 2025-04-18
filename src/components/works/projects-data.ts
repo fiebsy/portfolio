@@ -42,7 +42,7 @@ export const projects: Project[] = [
       secondPart: "integrated into Whop's side panel to rank user earnings.",
     },
     overviewSection:
-      "Whop, a platform similar to Discord with channel-like 'WOPs', needed to transform their basic user directory into an engaging competitive leaderboard. Working with product manager Ashley Yu and lead designer Ilya, I researched leaderboard designs from platforms like Duolingo and Peloton to inform our approach. The project required balancing technical constraints from their Ruby backend with the user-facing competitive features needed to drive engagement.",
+      "Whop, a unique creator platform, needed to boost user interaction within its community spaces ('Whops'). The existing directory lacked competitive features. I joined a collaborative effort across design and engineering to develop a dynamic leaderboard.",
     problem: 'User directory lacked competitive features to track engagement.',
     solution: 'A leaderboard with real-time rankings and interactive animations.',
     techStack: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Figma'],
@@ -75,7 +75,7 @@ export const projects: Project[] = [
       secondPart: "for Whop's Content Rewards program.",
     },
     overviewSection:
-      "Whop's Content Rewards program allows artists and brands to pay everyday users for creating promotional social media content. Working with marketing manager Dylan and lead developer Nicholas, I was tasked with streamlining the clunky submission review process used by admins and moderators. Despite being new to content creation ecosystems, I rapidly familiarized myself with the high-stakes requirements of approving, flagging, or rejecting submissions that trigger actual payments.",
+      "Whop's Content Rewards program connects brands with user-generated content creators. The internal review team faced a slow, multi-step process. I was tasked with designing a streamlined, unified interface to improve their workflow efficiency.",
     problem: 'Moderators faced clunky, multi-step reviews',
     solution: 'A unified card-based layout cut clutter and improved submission checks.',
     techStack: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Figma'],
@@ -108,7 +108,7 @@ export const projects: Project[] = [
       secondPart: 'for Stride protocol analytics and news summaries.',
     },
     overviewSection:
-      "Stride, a crypto staking protocol, awarded me a $10,000 grant to solve their community's scattered information problem. Token holders needed to track key performance indicators like Total Value Locked (TVL) that directly affect their yield, but data was fragmented across multiple sites. Working independently through my Pickaxe initiative, I created Bnocs.com to consolidate blockchain metrics, team communications, and community discussions in a single, real-time dashboard.",
+      "Stride's crypto protocol offers yield based on network activity (TVL), but users lacked a unified way to track performance. Fragmented data sources were cumbersome. I was brought on to build a dashboard consolidating metrics and news summaries.",
     problem: 'Fragmented data sources made tracking yield and TVL cumbersome',
     solution:
       'A unified dashboard that consolidated metrics, charts, and community updates in one platform.',
@@ -143,7 +143,7 @@ export const projects: Project[] = [
       secondPart: 'for the Züs platform.',
     },
     overviewSection:
-      "Züs Network, a decentralized cloud storage platform, funded my Pickaxe initiative with $20,000 to create a solution for their token stakers. Users could either run storage servers ('Blobbers') or stake tokens on existing Blobbers to earn yield, but had no way to identify the most profitable options. Working independently, I built ZCN.fun to help the community make data-driven decisions about where to allocate their tokens for maximum returns.",
+      "Züs runs a decentralized storage network where users earn by running nodes ('Blobbers') or staking. Identifying profitable Blobbers was challenging. I was brought on to create a platform visualizing yield data for informed staking decisions.",
     problem: 'No easy way to find profitable Blobbers (decentralized storage provider nodes)',
     solution:
       'A visualization platform that displayed returns and enabled data-driven staking decisions.',
