@@ -92,7 +92,7 @@ export default function ProjectSheetContent({
                     <Sheet.Title asChild>
                       <div>
                         {/* Video */}
-                        <div className="w-full overflow-hidden mb-12 relative">
+                        <div className="w-full overflow-visible mb-12 relative">
                           {!isMainVideoLoaded && (
                             <div className="absolute inset-0 bg-gray-5 animate-pulse z-10"></div>
                           )}
@@ -117,7 +117,7 @@ export default function ProjectSheetContent({
                             style={{
                               display: 'block',
                               width: '100%',
-                              height: 'auto',
+                              height: '400px',
                               objectFit: 'cover',
                             }}
                           >
@@ -328,11 +328,14 @@ export default function ProjectSheetContent({
                               loop
                               preload="auto"
                               onLoadedData={() => setIsFeatureVideoLoaded(true)}
-                              className={`w-full h-full object-cover transition-opacity duration-300 ${
+                              className={`w-full object-cover transition-opacity duration-300 ${
                                 isFeatureVideoLoaded ? 'opacity-100' : 'opacity-0'
                               }`}
                               style={{
                                 display: 'block',
+                                width: '100%',
+                                height: '320px',
+                                objectFit: 'cover',
                               }}
                             >
                               <source
