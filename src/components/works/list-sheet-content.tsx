@@ -4,7 +4,7 @@ import { CloseButton } from '@/components/ui/close-button';
 import SquircleBadge from '@/components/ui/squircle-badge';
 import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
 import { ArrowUpRight } from 'lucide-react';
-import { RefObject, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { ChevronRightIcon, type ChevronRightIconHandle } from '../ui/chevron-right';
 import SimpleSquircle from '../ui/simple-squircle';
 import type { Project } from './projects-data';
@@ -56,9 +56,10 @@ function ListItem({
 
   return (
     <SimpleSquircle
-      className={`w-full ${isActive ? 'bg-gray-4' : isHovering ? 'bg-gray-3' : 'bg-gray-2'} transition-colors duration-100 ease-out`}
+      className={` ${isActive ? 'bg-gray-4' : isHovering ? 'bg-gray-3' : 'bg-gray-2'} transition-colors duration-100 ease-out`}
       roundnessLevel={4}
       height="auto"
+      width="100%"
       padding={0}
       borderColor="#e9e9e9"
       border={1}
@@ -127,6 +128,7 @@ interface ListSheetContentProps {
   activeProjectIndex: number | null;
   isProjectSheetActive: boolean;
   videoUrls: Record<string, string>;
+  travelEnded?: boolean;
 }
 
 export default function ListSheetContent({
@@ -138,10 +140,45 @@ export default function ListSheetContent({
   activeProjectIndex,
   isProjectSheetActive,
   videoUrls,
+  travelEnded,
 }: ListSheetContentProps) {
+  const [animateItems, setAnimateItems] = useState(false);
+
+  // Function to trigger list item animations (simulating onTravelEnd)
+  const triggerItemAnimations = () => {
+    // First ensure animation state is reset
+    setAnimateItems(false);
+
+    // Small delay before starting animation to ensure DOM updates
+    setTimeout(() => {
+      setAnimateItems(true);
+    }, 50);
+  };
+
+  // Watch for travelEnded changes
+  useEffect(() => {
+    if (travelEnded) {
+      // Immediate trigger when travel ends
+      triggerItemAnimations();
+    }
+  }, [travelEnded]);
+
+  // Fallback animation trigger on mount (if travelEnded isn't provided/used)
+  useEffect(() => {
+    if (travelEnded === undefined) {
+      // Short delay to show animations after mount
+      const timer = setTimeout(() => {
+        triggerItemAnimations();
+      }, 200);
+
+      return () => clearTimeout(timer);
+    }
+  }, [travelEnded]);
+
   return (
     <>
       <style jsx>{sheetStyles}</style>
+
       <Sheet.Content
         className="list-sheet-content"
         style={{
@@ -193,16 +230,23 @@ export default function ListSheetContent({
                 {/* Projects List */}
                 <div className="flex flex-col gap-2">
                   {projects.map((project, index) => (
-                    <ListItem
-                      key={project.id}
-                      project={project}
-                      index={index}
-                      videoRefs={videoRefs}
-                      setActiveProjectIndex={setActiveProjectIndex}
-                      openSheet={openSheet}
-                      isActive={isProjectSheetActive && activeProjectIndex === index}
-                      videoUrls={videoUrls}
-                    />
+                    <div
+                      key={`list-item-${project.id}`}
+                      className={animateItems ? 'animate-list-item' : 'opacity-0'}
+                      style={{
+                        animationDelay: `${index * 50}ms`, // Faster staggering
+                      }}
+                    >
+                      <ListItem
+                        project={project}
+                        index={index}
+                        videoRefs={videoRefs}
+                        setActiveProjectIndex={setActiveProjectIndex}
+                        openSheet={openSheet}
+                        isActive={isProjectSheetActive && activeProjectIndex === index}
+                        videoUrls={videoUrls}
+                      />
+                    </div>
                   ))}
                 </div>
 

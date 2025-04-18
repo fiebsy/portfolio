@@ -36,6 +36,7 @@ export function Works() {
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
   const sheetVideoRefs = useRef<Array<HTMLVideoElement | null>>([]);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
+  const [listSheetTravelEnded, setListSheetTravelEnded] = useState(false);
 
   // Store pre-fetched video URLs
   const [videoUrls, setVideoUrls] = useState<Record<string, string>>({});
@@ -176,9 +177,19 @@ export function Works() {
               swipe={true}
               enteringAnimationSettings={{
                 easing: 'spring',
-                stiffness: 480,
+                stiffness: 520,
                 damping: 45,
                 mass: 1.5,
+              }}
+              exitingAnimationSettings={{
+                easing: 'spring',
+                stiffness: 380,
+                damping: 55,
+                mass: 2.0,
+              }}
+              onTravelEnd={() => {
+                // Set travel ended to true when sheet finishes animating
+                setListSheetTravelEnded(true);
               }}
             >
               <Sheet.Backdrop
@@ -196,6 +207,7 @@ export function Works() {
                 openSheet={openSheet}
                 activeProjectIndex={activeProjectIndex}
                 isProjectSheetActive={isSheetActive('project-sheet')}
+                travelEnded={listSheetTravelEnded}
               />
             </Sheet.View>
           </Sheet.Portal>

@@ -104,4 +104,100 @@ export const sheetStyles = `
       width: 100% !important;
     }
   }
+
+  /* Animation Keyframes */
+
+  /* Test circle bounce animation */
+  @keyframes appear-bounce {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -20px) scale(0.5);
+    }
+    50% {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1.1);
+    }
+    75% {
+      transform: translate(-50%, -5px) scale(0.95);
+    }
+    100% {
+      transform: translate(-50%, 0) scale(1);
+    }
+  }
+
+  /* List item animation with slide up, fade in, and subtle scale */
+  @keyframes slide-in {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.97);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(0) scale(1.01);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Animation Classes */
+
+  /* Test circle animation class */
+  .animate-test-circle {
+    animation: appear-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  /* List item animation class */
+  .animate-list-item {
+    animation: slide-in 0.25s cubic-bezier(0.2, 0.85, 0.4, 1.2) forwards;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  /* Alternative animation with more pronounced scale effect */
+  .animate-scale-in {
+    animation: scale-in 0.3s cubic-bezier(0.17, 0.67, 0.3, 1.33) forwards;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  /* Scale in animation */
+  @keyframes scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    70% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Float in animation (diagonal movement) */
+  @keyframes float-in {
+    0% {
+      opacity: 0;
+      transform: translate(-10px, 10px) scale(0.98);
+    }
+    60% {
+      opacity: 1;
+      transform: translate(2px, -2px) scale(1.01);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  /* Float in animation class */
+  .animate-float-in {
+    animation: float-in 0.35s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
 `;
