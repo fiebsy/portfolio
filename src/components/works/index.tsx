@@ -214,10 +214,9 @@ export function Works() {
             <Sheet.View
               className="sheet-view"
               contentPlacement="bottom"
-              detents="max(env(safe-area-inset-bottom, 0px) + 46px, 500px)"
               swipeTrap={true}
               swipeOvershoot={false}
-              swipeDismissal={true}
+              swipeDismissal={false}
               swipe={true}
             >
               <Sheet.Backdrop
