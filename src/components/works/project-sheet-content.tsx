@@ -164,7 +164,7 @@ export default function ProjectSheetContent({
                     <Sheet.Title asChild>
                       <div>
                         {/* Video */}
-                        <div className="w-full overflow-hidden mb-12">
+                        <div className="w-full overflow-hidden mb-12 ">
                           <video
                             ref={(el) => {
                               if (activeVideoIndex !== null) {
@@ -179,7 +179,6 @@ export default function ProjectSheetContent({
                             className="w-full safari-video-fix"
                             style={{
                               display: 'block',
-                              objectFit: 'fill',
                               width: '100%',
                               height: 'auto',
                             }}

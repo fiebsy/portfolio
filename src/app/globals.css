@@ -72,15 +72,70 @@ body {
 /* Display Text Utility */
 @utility text-display {
   font-family: var(--font-display);
-  font-weight: var(--font-weight-semibold);
   letter-spacing: var(--tracking-display);
 }
 
-/* Custom Font Display Class */
+/* Custom Font Display Class with default semibold weight that can be overridden */
 .font-display {
   font-family: var(--font-display);
   letter-spacing: var(--tracking-display);
   font-weight: var(--font-weight-semibold);
+}
+
+/* Ensure Tailwind font weight utilities override the .font-display class */
+@utility font-thin {
+  font-weight: 100 !important;
+}
+
+@utility font-extralight {
+  font-weight: 200 !important;
+}
+
+@utility font-light {
+  font-weight: 300 !important;
+}
+
+@utility font-normal {
+  font-weight: 400 !important;
+}
+
+@utility font-medium {
+  font-weight: 500 !important;
+}
+
+@utility font-semibold {
+  font-weight: 600 !important;
+}
+
+@utility font-bold {
+  font-weight: 700 !important;
+}
+
+@utility font-extrabold {
+  font-weight: 800 !important;
+}
+
+@utility font-black {
+  font-weight: 900 !important;
+}
+
+/* Weight-specific display text classes for convenience */
+.display-semibold {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--font-weight-semibold);
+}
+
+.display-bold {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--font-weight-bold);
+}
+
+.display-extrabold {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--font-weight-extrabold);
 }
 
 /* Define color utilities explicitly using the --value() function for Tailwind v4 */

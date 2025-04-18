@@ -2,7 +2,7 @@ import { Works } from '@/components/works';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-3">
+    <main className="flex min-h-screen flex-col items-center justify-center">
       {/* Hero section can be added here */}
 
       {/* Works section */}

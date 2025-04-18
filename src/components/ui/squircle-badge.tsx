@@ -105,7 +105,7 @@ const SquircleBadge = React.forwardRef<HTMLDivElement, SquircleBadgeProps>(
         return (
           <div
             className={`flex items-center ${iconSizeClasses[size]} ${
-              position === 'left' ? 'mr-1' : ''
+              position === 'left' ? 'mr-1' : '-mr-2'
             }`}
           >
             <IconComponent className="w-full h-full" />

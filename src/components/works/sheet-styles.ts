@@ -13,6 +13,7 @@ export const sheetStyles = `
     top: 0;
     bottom: initial;
     height: calc(var(--silk-100-lvh-dvh-pct) + 60px);
+    width: 100%;
   }
 
   .long-sheet-scroll-view {
