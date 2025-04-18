@@ -1,44 +1,32 @@
 export const sheetStyles = `
-  .long-sheet-view {
+  /* Universal Sheet Styles (Used by both List and Project sheets) */
+  .universal-sheet-view {
     z-index: 1;
     top: 0;
     bottom: initial;
     /* Adding 60px to make it fully visible below iOS Safari's bottom UI */
     height: calc(var(--silk-100-lvh-dvh-pct) + 60px);
+    width: 100%;
     overflow: hidden;
   }
 
-  .sheet-view {
+    .list-sheet-view {
     z-index: 1;
     top: 0;
     bottom: initial;
-    height: calc(var(--silk-100-lvh-dvh-pct) + 60px);
+    /* Adding 60px to make it fully visible below iOS Safari's bottom UI */
+    height: auto;
     width: 100%;
+    overflow: hidden;
   }
-
-  .long-sheet-scroll-view {
+  .universal-sheet-scroll-view {
     width: 100%;
     height: 100%;
     scroll-behavior: smooth;
     overflow: hidden;
   }
 
-  .long-sheet-scroll-content {
-    height: auto;
-    min-height: 100%;
-    padding: 20px 28px 0px 28px;
-    overflow: hidden;
-    border-radius: 40px;
-  }
-      .project-sheet-scroll-content {
-    height: auto;
-    min-height: 100%;
-    padding: 0px 0px 0px 0px;
-    overflow: hidden;
-    border-radius: 40px;
-  }
-
-  .long-sheet-content {
+  .universal-sheet-content {
     height: calc(100% - max(env(safe-area-inset-top), 20px));
     margin: 0 auto;
     overflow: hidden;
@@ -46,6 +34,25 @@ export const sheetStyles = `
     border-radius: 40px;
   }
 
+  /* List Sheet Specific Styles */
+  .list-sheet-scroll-content {
+    height: auto;
+    min-height: 100%;
+    padding: 20px 28px 0px 28px;
+    overflow: hidden;
+    border-radius: 40px;
+  }
+
+  /* Project Sheet Specific Styles */
+  .project-sheet-scroll-content {
+    height: auto;
+    min-height: 100%;
+    padding: 0px 0px 0px 0px;
+    overflow: hidden;
+    border-radius: 40px;
+  }
+
+  /* Common UI Elements and Utilities */
   .sheet-content {
     height: calc(100% - max(env(safe-area-inset-top), 6px));
     background-color: transparent;

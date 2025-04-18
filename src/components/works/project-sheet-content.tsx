@@ -56,7 +56,7 @@ export default function ProjectSheetContent({
     <>
       <style jsx>{sheetStyles}</style>
       <Sheet.Content
-        className="long-sheet-content"
+        className="universal-sheet-content"
         style={{
           maxWidth: '800px',
         }}
@@ -85,7 +85,7 @@ export default function ProjectSheetContent({
             </Sheet.Handle>
           </div>
 
-          <Scroll.View className="long-sheet-scroll-view" scrollGestureTrap={true}>
+          <Scroll.View className="universal-sheet-scroll-view" scrollGestureTrap={true}>
             <Scroll.Content className="project-sheet-scroll-content">
               {activeProjectIndex !== null && (
                 <div className="flex flex-col">

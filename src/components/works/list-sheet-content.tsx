@@ -153,7 +153,7 @@ export default function ListSheetContent({
     <>
       <style jsx>{sheetStyles}</style>
       <Sheet.Content
-        className="long-sheet-content max-h-[660px]"
+        className="universal-sheet-content"
         style={{
           maxWidth: '420px',
           transform: isListSheetScaled ? 'translateY(-10px) scale(0.933)' : 'none',
@@ -182,7 +182,7 @@ export default function ListSheetContent({
         </div>
 
         <Scroll.Root
-          className="h-full rounded-t-[40px] overflow-hidden bg-gray-3 border-3 border-gray-6 border-b-0"
+          className="h-auto rounded-t-[40px] overflow-hidden bg-gray-3 border-3 border-gray-6 border-b-0"
           style={{ background: 'transparent' }}
         >
           <div className="absolute top-0 left-0 w-full z-10 h-[40px] opacity-0">
@@ -191,8 +191,8 @@ export default function ListSheetContent({
             </Sheet.Handle>
           </div>
 
-          <Scroll.View className="long-sheet-scroll-view" scrollGestureTrap={true}>
-            <Scroll.Content className="long-sheet-scroll-content">
+          <Scroll.View className="universal-sheet-scroll-view" scrollGestureTrap={true}>
+            <Scroll.Content className="list-sheet-scroll-content">
               {/* Header with title */}
               <Sheet.Title className="text-2xl pt-[40px] mb-6 font-display text-gray-10">
                 Recent projects
@@ -218,7 +218,7 @@ export default function ListSheetContent({
                 </div>
 
                 {/* Quick Links Section */}
-                <div className="pt-6 border-t border-gray-4">
+                <div className="hidden pt-6 border-t border-gray-4">
                   <h3 className="text-gray-10 text-xs font-bold mb-3 uppercase tracking-widest">
                     Quick links
                   </h3>
