@@ -258,7 +258,7 @@ export default function ProjectSheetContent({
                         ></div>
                         <div className="w-full h-full flex flex-col justify-between relative z-10">
                           <div className="absolute top-0 left-0">
-                            <h3 className="uppercase tracking-widest text-xs font-bold text-gray-10/40 mb-0">
+                            <h3 className="uppercase tracking-widest text-xs font-bold text-gray-10/40 mb-0 hidden">
                               Overview
                             </h3>
                           </div>
