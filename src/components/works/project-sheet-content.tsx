@@ -30,7 +30,6 @@ interface ProjectSheetContentProps {
   projects: Project[];
   sheetVideoRefs: RefObject<Array<HTMLVideoElement | null>>;
   videoUrls: Record<string, string>;
-  isLoading: boolean;
 }
 
 export default function ProjectSheetContent({
@@ -38,7 +37,6 @@ export default function ProjectSheetContent({
   projects,
   sheetVideoRefs,
   videoUrls,
-  isLoading,
 }: ProjectSheetContentProps) {
   const [isMainVideoLoaded, setIsMainVideoLoaded] = useState(false);
   const [isFeatureVideoLoaded, setIsFeatureVideoLoaded] = useState(false);
@@ -94,46 +92,40 @@ export default function ProjectSheetContent({
                     <Sheet.Title asChild>
                       <div>
                         {/* Video */}
-                        <div className="w-full overflow-hidden mb-12">
-                          {isLoading ? (
-                            <div className="w-full h-56 bg-gray-5 animate-pulse"></div>
-                          ) : (
-                            <div className="relative">
-                              {!isMainVideoLoaded && (
-                                <div className="absolute inset-0 bg-gray-5 z-10"></div>
-                              )}
-                              <video
-                                ref={(el) => {
-                                  if (activeProjectIndex !== null && el) {
-                                    sheetVideoRefs.current[activeProjectIndex] = el;
-                                    // Set playsinline attribute directly for iOS
-                                    el.setAttribute('playsinline', '');
-                                    el.setAttribute('webkit-playsinline', '');
-                                  }
-                                }}
-                                autoPlay
-                                muted
-                                playsInline
-                                loop
-                                preload="auto"
-                                onLoadedData={() => setIsMainVideoLoaded(true)}
-                                className={`w-full safari-video-fix transition-opacity duration-300 ${
-                                  isMainVideoLoaded ? 'opacity-100' : 'opacity-0'
-                                }`}
-                                style={{
-                                  display: 'block',
-                                  width: '100%',
-                                  height: 'auto',
-                                  objectFit: 'cover',
-                                }}
-                              >
-                                <source
-                                  src={getVideoUrl(projects[activeProjectIndex].fullVideo)}
-                                  type="video/mp4"
-                                />
-                              </video>
-                            </div>
+                        <div className="w-full overflow-hidden mb-12 relative">
+                          {!isMainVideoLoaded && (
+                            <div className="absolute inset-0 bg-gray-5 animate-pulse z-10"></div>
                           )}
+                          <video
+                            ref={(el) => {
+                              if (activeProjectIndex !== null && el) {
+                                sheetVideoRefs.current[activeProjectIndex] = el;
+                                // Set playsinline attribute directly for iOS
+                                el.setAttribute('playsinline', '');
+                                el.setAttribute('webkit-playsinline', '');
+                              }
+                            }}
+                            autoPlay
+                            muted
+                            playsInline
+                            loop
+                            preload="auto"
+                            onLoadedData={() => setIsMainVideoLoaded(true)}
+                            className={`w-full safari-video-fix transition-opacity duration-300 ${
+                              isMainVideoLoaded ? 'opacity-100' : 'opacity-0'
+                            }`}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              height: 'auto',
+                              objectFit: 'cover',
+                            }}
+                          >
+                            <source
+                              src={getVideoUrl(projects[activeProjectIndex].fullVideo)}
+                              type="video/mp4"
+                            />
+                          </video>
                         </div>
 
                         {/* Title Content */}
@@ -325,34 +317,30 @@ export default function ProjectSheetContent({
                           borderColor="#e9e9e9"
                           height="320px"
                         >
-                          {isLoading ? (
-                            <div className="w-full h-full bg-gray-5 animate-pulse"></div>
-                          ) : (
-                            <div className="relative w-full h-full">
-                              {!isFeatureVideoLoaded && (
-                                <div className="absolute inset-0 bg-gray-5 z-10"></div>
-                              )}
-                              <video
-                                autoPlay
-                                muted
-                                playsInline
-                                loop
-                                preload="auto"
-                                onLoadedData={() => setIsFeatureVideoLoaded(true)}
-                                className={`w-full h-full object-cover transition-opacity duration-300 ${
-                                  isFeatureVideoLoaded ? 'opacity-100' : 'opacity-0'
-                                }`}
-                                style={{
-                                  display: 'block',
-                                }}
-                              >
-                                <source
-                                  src={getVideoUrl(projects[activeProjectIndex].featureVideo)}
-                                  type="video/mp4"
-                                />
-                              </video>
-                            </div>
-                          )}
+                          <div className="relative w-full h-full">
+                            {!isFeatureVideoLoaded && (
+                              <div className="absolute inset-0 bg-gray-5 animate-pulse z-10"></div>
+                            )}
+                            <video
+                              autoPlay
+                              muted
+                              playsInline
+                              loop
+                              preload="auto"
+                              onLoadedData={() => setIsFeatureVideoLoaded(true)}
+                              className={`w-full h-full object-cover transition-opacity duration-300 ${
+                                isFeatureVideoLoaded ? 'opacity-100' : 'opacity-0'
+                              }`}
+                              style={{
+                                display: 'block',
+                              }}
+                            >
+                              <source
+                                src={getVideoUrl(projects[activeProjectIndex].featureVideo)}
+                                type="video/mp4"
+                              />
+                            </video>
+                          </div>
                         </SimpleSquircle>
                       </div>
 

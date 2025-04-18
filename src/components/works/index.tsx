@@ -39,6 +39,7 @@ export function Works() {
 
   // Store pre-fetched video URLs
   const [videoUrls, setVideoUrls] = useState<Record<string, string>>({});
+  // Track overall loading state for videos - used for preloading and initial state
   const [isLoading, setIsLoading] = useState(true);
 
   // Pre-fetch all video URLs when component mounts
@@ -136,9 +137,12 @@ export function Works() {
 
       <button
         onClick={() => openSheet('list-sheet')}
-        className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg text-lg transition-colors duration-200"
+        disabled={isLoading}
+        className={`text-white font-medium py-3 px-6 rounded-lg text-lg transition-colors duration-200 ${
+          isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+        }`}
       >
-        View My Work
+        {isLoading ? 'Loading...' : 'View My Work'}
       </button>
 
       {/* Hidden preload section for videos */}
@@ -235,7 +239,6 @@ export function Works() {
                 projects={projects}
                 sheetVideoRefs={sheetVideoRefs}
                 videoUrls={videoUrls}
-                isLoading={isLoading}
               />
             </Sheet.View>
           </Sheet.Portal>
