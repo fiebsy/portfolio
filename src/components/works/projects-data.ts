@@ -68,7 +68,7 @@ export const projects: Project[] = [
     year: '2025',
     thumbnail: '/videos/content-rewards/thumbnail-card-2.mp4',
     fullVideo: '/videos/content-rewards/full-flow.mp4',
-    featureVideo: '/videos/content-rewards/approvals-flow-card.mp4',
+    featureVideo: '/videos/content-rewards/approvals-flow-card-mpa9HO8upqziHYqgMApCtOx1Xjsyx2.mp4',
     summary: "Updated the submission review system for Whop's Content Rewards program.",
     formattedSummary: {
       firstPart: 'A submission review system',

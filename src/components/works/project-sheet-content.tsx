@@ -1,15 +1,14 @@
 'use client';
 
-import { ArrowUpRight, BadgeCheck, CodeXml, Palette } from 'lucide-react';
-import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { CloseButton } from '@/components/ui/close-button';
 import SimpleSquircle from '@/components/ui/simple-squircle';
 import SquircleBadge from '@/components/ui/squircle-badge';
-import { CloseButton } from '@/components/ui/close-button';
-import { getVideoUrlFromBlob } from '@/app/actions/videos';
+import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
+import { ArrowUpRight, BadgeCheck, CodeXml, Palette } from 'lucide-react';
+import Image from 'next/image';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import type { Project } from './projects-data';
 import { sheetStyles } from './sheet-styles';
-import Image from 'next/image';
 
 // Map tech stack names to their SVG paths
 const techLogos: Record<string, string> = {
@@ -30,32 +29,35 @@ interface ProjectSheetContentProps {
   activeProjectIndex: number | null;
   projects: Project[];
   sheetVideoRefs: RefObject<Array<HTMLVideoElement | null>>;
+  videoUrls: Record<string, string>;
+  isLoading: boolean;
 }
 
 export default function ProjectSheetContent({
   activeProjectIndex,
   projects,
   sheetVideoRefs,
+  videoUrls,
+  isLoading,
 }: ProjectSheetContentProps) {
   const playAttemptRef = useRef<number>(0);
-  const [mainVideoUrl, setMainVideoUrl] = useState<string>('');
-  const [featureVideoUrl, setFeatureVideoUrl] = useState<string>('');
 
-  // Fetch video URLs from Vercel Blob when the active project changes
+  // Add state variables for video loading status
+  const [isMainVideoLoaded, setIsMainVideoLoaded] = useState(false);
+  const [isFeatureVideoLoaded, setIsFeatureVideoLoaded] = useState(false);
+
+  // Add handlers for when videos are loaded
+  const handleMainVideoLoaded = () => setIsMainVideoLoaded(true);
+  const handleFeatureVideoLoaded = () => setIsFeatureVideoLoaded(true);
+
+  // Reset loading state when activeProjectIndex changes
   useEffect(() => {
-    const fetchVideoUrls = async () => {
-      if (activeProjectIndex !== null) {
-        const project = projects[activeProjectIndex];
-        const mainUrl = await getVideoUrlFromBlob(project.fullVideo);
-        const featureUrl = await getVideoUrlFromBlob(project.featureVideo);
+    setIsMainVideoLoaded(false);
+    setIsFeatureVideoLoaded(false);
+  }, [activeProjectIndex]);
 
-        setMainVideoUrl(mainUrl);
-        setFeatureVideoUrl(featureUrl);
-      }
-    };
-
-    fetchVideoUrls();
-  }, [activeProjectIndex, projects]);
+  // Get video URLs from props
+  const getVideoUrl = (path: string) => videoUrls[path] || path;
 
   // Safer approach to play video with retry logic
   const safelyPlayVideo = (videoElement: HTMLVideoElement | null) => {
@@ -139,7 +141,7 @@ export default function ProjectSheetContent({
         };
       }
     }
-  }, [activeProjectIndex, sheetVideoRefs, mainVideoUrl]);
+  }, [activeProjectIndex, sheetVideoRefs]);
 
   return (
     <>
@@ -184,34 +186,47 @@ export default function ProjectSheetContent({
                       <div>
                         {/* Video */}
                         <div className="w-full overflow-hidden mb-12 ">
-                          <video
-                            ref={(el) => {
-                              if (activeProjectIndex !== null) {
-                                sheetVideoRefs.current[activeProjectIndex] = el;
-                              }
-                            }}
-                            muted
-                            playsInline
-                            loop
-                            preload="auto"
-                            className="w-full safari-video-fix"
-                            style={{
-                              display: 'block',
-                              width: '100%',
-                              height: 'auto',
-                            }}
-                          >
-                            <source
-                              src={
-                                mainVideoUrl ||
-                                (activeProjectIndex !== null
-                                  ? projects[activeProjectIndex].fullVideo
-                                  : '')
-                              }
-                              type="video/mp4"
-                            />
-                            Your browser does not support HTML video.
-                          </video>
+                          {isLoading && activeProjectIndex !== null ? (
+                            <div className="w-full h-56 bg-gray-5 animate-pulse"></div>
+                          ) : (
+                            <div className="relative">
+                              {/* Placeholder that shows until video is loaded */}
+                              {!isMainVideoLoaded && activeProjectIndex !== null && (
+                                <div className="absolute inset-0 bg-gray-5 z-10"></div>
+                              )}
+
+                              <video
+                                ref={(el) => {
+                                  if (activeProjectIndex !== null) {
+                                    sheetVideoRefs.current[activeProjectIndex] = el;
+                                  }
+                                }}
+                                muted
+                                playsInline
+                                loop
+                                preload="auto"
+                                onLoadedData={handleMainVideoLoaded}
+                                className={`w-full safari-video-fix transition-opacity duration-500 ${
+                                  isMainVideoLoaded ? 'opacity-100' : 'opacity-0'
+                                }`}
+                                style={{
+                                  display: 'block',
+                                  width: '100%',
+                                  height: 'auto',
+                                }}
+                              >
+                                <source
+                                  src={
+                                    activeProjectIndex !== null
+                                      ? getVideoUrl(projects[activeProjectIndex].fullVideo)
+                                      : ''
+                                  }
+                                  type="video/mp4"
+                                />
+                                Your browser does not support HTML video.
+                              </video>
+                            </div>
+                          )}
                         </div>
 
                         {/* Title Content */}
@@ -403,24 +418,37 @@ export default function ProjectSheetContent({
                           borderColor="#e9e9e9"
                           height="320px"
                         >
-                          <video
-                            autoPlay
-                            muted
-                            playsInline
-                            loop
-                            className="w-full h-full object-cover"
-                          >
-                            <source
-                              src={
-                                featureVideoUrl ||
-                                (activeProjectIndex !== null
-                                  ? projects[activeProjectIndex].featureVideo
-                                  : '')
-                              }
-                              type="video/mp4"
-                            />
-                            Your browser does not support HTML video.
-                          </video>
+                          {isLoading && activeProjectIndex !== null ? (
+                            <div className="w-full h-full bg-gray-5 animate-pulse"></div>
+                          ) : (
+                            <div className="relative w-full h-full">
+                              {/* Placeholder that shows until video is loaded */}
+                              {!isFeatureVideoLoaded && activeProjectIndex !== null && (
+                                <div className="absolute inset-0 bg-gray-5 z-10"></div>
+                              )}
+
+                              <video
+                                autoPlay
+                                muted
+                                playsInline
+                                loop
+                                onLoadedData={handleFeatureVideoLoaded}
+                                className={`w-full h-full object-cover transition-opacity duration-500 ${
+                                  isFeatureVideoLoaded ? 'opacity-100' : 'opacity-0'
+                                }`}
+                              >
+                                <source
+                                  src={
+                                    activeProjectIndex !== null
+                                      ? getVideoUrl(projects[activeProjectIndex].featureVideo)
+                                      : ''
+                                  }
+                                  type="video/mp4"
+                                />
+                                Your browser does not support HTML video.
+                              </video>
+                            </div>
+                          )}
                         </SimpleSquircle>
                       </div>
 

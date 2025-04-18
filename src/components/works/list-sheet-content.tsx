@@ -1,15 +1,14 @@
 'use client';
 
-import { ChevronRightIcon, type ChevronRightIconHandle } from '../ui/chevron-right';
-import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
-import { RefObject, useEffect, useRef, useState } from 'react';
-import SquircleBadge from '@/components/ui/squircle-badge';
 import { CloseButton } from '@/components/ui/close-button';
-import { getVideoUrlFromBlob } from '@/app/actions/videos';
+import SquircleBadge from '@/components/ui/squircle-badge';
+import { Scroll, Sheet, VisuallyHidden } from '@silk-hq/components';
+import { ArrowUpRight } from 'lucide-react';
+import { RefObject, useRef, useState } from 'react';
+import { ChevronRightIcon, type ChevronRightIconHandle } from '../ui/chevron-right';
 import SimpleSquircle from '../ui/simple-squircle';
 import type { Project } from './projects-data';
 import { sheetStyles } from './sheet-styles';
-import { ArrowUpRight } from 'lucide-react';
 
 interface ListItemProps {
   project: Project;
@@ -18,6 +17,8 @@ interface ListItemProps {
   setActiveProjectIndex: (index: number) => void;
   openSheet: (sheetName: string) => void;
   isActive: boolean;
+  videoUrls: Record<string, string>;
+  isLoading: boolean;
 }
 
 function ListItem({
@@ -27,20 +28,13 @@ function ListItem({
   setActiveProjectIndex,
   openSheet,
   isActive,
+  videoUrls,
+  isLoading,
 }: ListItemProps) {
   const chevronRef = useRef<ChevronRightIconHandle>(null);
   const [isHovering, setIsHovering] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string>(project.thumbnail);
-
-  // Fetch video URL from Vercel Blob
-  useEffect(() => {
-    const fetchVideoUrl = async () => {
-      const url = await getVideoUrlFromBlob(project.thumbnail);
-      setVideoUrl(url);
-    };
-
-    fetchVideoUrl();
-  }, [project.thumbnail]);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const videoUrl = videoUrls[project.thumbnail] || project.thumbnail;
 
   const handleMouseEnter = () => {
     setIsHovering(true);
@@ -67,6 +61,10 @@ function ListItem({
     openSheet('project-sheet');
   };
 
+  const handleVideoLoaded = () => {
+    setIsVideoLoaded(true);
+  };
+
   return (
     <SimpleSquircle
       className={`w-full ${isActive ? 'bg-gray-4' : isHovering ? 'bg-gray-3' : 'bg-gray-2'} transition-colors duration-100 ease-out`}
@@ -91,29 +89,39 @@ function ListItem({
           <div className="absolute right-16 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full hidden bg-green-500 shadow-sm animate-pulse"></div>
         )}
         <div className="w-[92px] h-[80px] relative flex-shrink-0 mr-3 overflow-hidden border-r border-gray-3">
-          <video
-            ref={(el) => {
-              if (videoRefs.current) videoRefs.current[index] = el;
-            }}
-            muted
-            playsInline
-            loop
-            className="w-[92px] h-full object-cover object-center safari-video-fix"
-            style={{
-              display: 'block' /* Forces block display for Safari */,
-              minHeight: '100%' /* Ensures minimum height in Safari */,
-              maxWidth: '100%' /* Prevents overflow in Safari */,
-            }}
-          >
-            <source src={videoUrl} type="video/mp4" />
-            Your browser does not support HTML video.
-          </video>
+          {isLoading ? (
+            <div className="w-full h-full bg-gray-5 animate-pulse"></div>
+          ) : (
+            <>
+              {!isVideoLoaded && <div className="absolute inset-0 bg-gray-5 z-10"></div>}
+              <video
+                ref={(el) => {
+                  if (videoRefs.current) videoRefs.current[index] = el;
+                }}
+                muted
+                playsInline
+                loop
+                onLoadedData={handleVideoLoaded}
+                className={`w-[92px] h-full object-cover object-center safari-video-fix transition-opacity duration-300 ${
+                  isVideoLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{
+                  display: 'block' /* Forces block display for Safari */,
+                  minHeight: '100%' /* Ensures minimum height in Safari */,
+                  maxWidth: '100%' /* Prevents overflow in Safari */,
+                }}
+              >
+                <source src={videoUrl} type="video/mp4" />
+                Your browser does not support HTML video.
+              </video>
+            </>
+          )}
         </div>
         <div
           className="transition-transform duration-200 ease-out space-y-0.5"
           style={{ transform: isHovering ? 'translateY(-2px)' : 'translateY(0)' }}
         >
-          <h3 className="font-bold tracking-tighter  text-gray-13">{project.title}</h3>
+          <h3 className="font-bold font-display text-xl text-gray-13">{project.title}</h3>
           <p className="font-display  text-xs text-gray-10">
             {project.company} • {project.year}
           </p>
@@ -132,6 +140,8 @@ interface ListSheetContentProps {
   openSheet: (sheetName: string) => void;
   activeProjectIndex: number | null;
   isProjectSheetActive: boolean;
+  videoUrls: Record<string, string>;
+  isLoading: boolean;
 }
 
 export default function ListSheetContent({
@@ -142,6 +152,8 @@ export default function ListSheetContent({
   openSheet,
   activeProjectIndex,
   isProjectSheetActive,
+  videoUrls,
+  isLoading,
 }: ListSheetContentProps) {
   return (
     <>
@@ -205,6 +217,8 @@ export default function ListSheetContent({
                       setActiveProjectIndex={setActiveProjectIndex}
                       openSheet={openSheet}
                       isActive={isProjectSheetActive && activeProjectIndex === index}
+                      videoUrls={videoUrls}
+                      isLoading={isLoading}
                     />
                   ))}
                 </div>
