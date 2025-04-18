@@ -8,6 +8,13 @@ export const sheetStyles = `
     overflow: hidden;
   }
 
+  .sheet-view {
+    z-index: 1;
+    top: 0;
+    bottom: initial;
+    height: calc(var(--silk-100-lvh-dvh-pct) + 60px);
+  }
+
   .long-sheet-scroll-view {
     width: 100%;
     height: 100%;
@@ -38,6 +45,16 @@ export const sheetStyles = `
     border-radius: 40px;
   }
 
+  .sheet-content {
+    height: calc(100% - max(env(safe-area-inset-top), 6px));
+    background-color: transparent;
+  }
+
+  /* Add backdrop styling for Safari fix - but allow opacity animation */
+  [data-sheet-backdrop] {
+    background-color: rgba(0, 0, 0, 1) !important;
+  }
+
   .bleeding-background {
     filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
     height: 100%;
@@ -46,6 +63,12 @@ export const sheetStyles = `
     overflow: hidden;
     border: 3px solid var(--color-gray-6);
     border-bottom: 0;
+  }
+
+  @media (min-width: 800px) {
+    .sheet-content {
+      height: calc(100% - max(env(safe-area-inset-top), 5vh));
+    }
   }
 
   /* Safari-specific fixes */

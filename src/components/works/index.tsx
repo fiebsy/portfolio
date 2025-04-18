@@ -5,42 +5,15 @@ import { useEffect, useRef, useState } from 'react';
 import ListSheetContent from './list-sheet-content';
 import ProjectSheetContent from './project-sheet-content';
 import { projects } from './projects-data';
+import { sheetStyles } from './sheet-styles';
 
 // Create component IDs
 const sheetStackId = createComponentId();
 const listSheetId = createComponentId();
 const projectSheetId = createComponentId();
 
-// Define sheet detents - using absolute units instead of viewport-relative units
-
-// Add a stylesheet to handle special sheet configurations
-const sheetStyles = `
-.sheet-view {
-  z-index: 1;
-  top: 0;
-  bottom: initial;
-  height: calc(var(--silk-100-lvh-dvh-pct) + 60px);
-}
-
-.sheet-content {
-  height: calc(100% - max(env(safe-area-inset-top), 6px));
-  /* Remove fixed max-width to allow component-level styling */
-  background-color: transparent;
-}
-
-/* Add backdrop styling for Safari fix - but allow opacity animation */
-[data-sheet-backdrop] {
-  background-color: rgba(0, 0, 0, 1) !important;
-}
-
-@media (min-width: 800px) {
-  .sheet-content {
-    height: calc(100% - max(env(safe-area-inset-top), 5vh));
-  }
-}
-`;
-
-export default function WorksComponent() {
+// Directly export the Works component - now with a named export as well as default
+export function Works() {
   const [activeSheets, setActiveSheets] = useState<string[]>([]);
   const [projectSheetDetent, setProjectSheetDetent] = useState(1);
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
@@ -80,8 +53,8 @@ export default function WorksComponent() {
   }, [activeSheets]);
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center">
-      <style>{sheetStyles}</style>
+    <div className="w-full flex flex-col items-center justify-center">
+      <style jsx>{sheetStyles}</style>
 
       <button
         onClick={() => openSheet('list-sheet')}
@@ -178,3 +151,6 @@ export default function WorksComponent() {
     </div>
   );
 }
+
+// Keep default export for backward compatibility
+export default Works;

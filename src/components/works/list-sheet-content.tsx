@@ -221,7 +221,7 @@ export default function ListSheetContent({
                     </SquircleBadge>
                     <SquircleBadge
                       size="sm"
-                      variant="outline"
+                      variant="default"
                       rightIcon={ArrowUpRight}
                       roundnessLevel={3}
                       url="https://beratrack.com"
@@ -230,7 +230,7 @@ export default function ListSheetContent({
                     </SquircleBadge>
                     <SquircleBadge
                       size="sm"
-                      variant="outline"
+                      variant="default"
                       rightIcon={ArrowUpRight}
                       roundnessLevel={3}
                       url="https://whop.pickaxe.it"
@@ -239,7 +239,7 @@ export default function ListSheetContent({
                     </SquircleBadge>
                     <SquircleBadge
                       size="sm"
-                      variant="outline"
+                      variant="default"
                       rightIcon={ArrowUpRight}
                       roundnessLevel={3}
                       url="https://pickaxe.it"
@@ -248,7 +248,7 @@ export default function ListSheetContent({
                     </SquircleBadge>
                     <SquircleBadge
                       size="sm"
-                      variant="outline"
+                      variant="default"
                       rightIcon={ArrowUpRight}
                       roundnessLevel={3}
                       url="https://droppy.info"

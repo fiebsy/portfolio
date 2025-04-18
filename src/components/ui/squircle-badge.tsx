@@ -93,7 +93,7 @@ const SquircleBadge = React.forwardRef<HTMLDivElement, SquircleBadgeProps>(
       // Handle Lottie animation
       if (typeof icon === 'string' && icon.includes('.json')) {
         return (
-          <div className={`flex items-center ${position === 'left' ? 'mr-2' : 'ml-2 mr-2'}`}>
+          <div className={`flex items-center ${position === 'left' ? 'mr-1' : 'ml-2 mr-1'}`}>
             <Player src={icon} className={`inline-block ${iconSizeClasses[size]}`} autoplay loop />
           </div>
         );
@@ -105,7 +105,7 @@ const SquircleBadge = React.forwardRef<HTMLDivElement, SquircleBadgeProps>(
         return (
           <div
             className={`flex items-center ${iconSizeClasses[size]} ${
-              position === 'left' ? 'mr-1.5' : 'ml-1.5 mr-1.5'
+              position === 'left' ? 'mr-1' : ''
             }`}
           >
             <IconComponent className="w-full h-full" />
