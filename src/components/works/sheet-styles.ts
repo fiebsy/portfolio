@@ -5,12 +5,12 @@ export const sheetStyles = `
     top: 0;
     bottom: initial;
     /* Adding 60px to make it fully visible below iOS Safari's bottom UI */
-    height: calc(var(--silk-100-lvh-dvh-pct) + 60px);
+    height: calc(var(--silk-100-lvh-dvh-pct));
     width: 100%;
     overflow: hidden;
   }
 
-    .list-sheet-view {
+  .list-sheet-view {
     z-index: 1;
     top: 0;
     bottom: initial;
@@ -19,6 +19,7 @@ export const sheetStyles = `
     width: 100%;
     overflow: hidden;
   }
+
   .universal-sheet-scroll-view {
     width: 100%;
     height: 100%;

@@ -79,7 +79,7 @@ export default function ProjectSheetContent({
           className="h-full rounded-t-[40px] overflow-hidden bg-gray-1 border-3 border-gray-6 border-b-0"
           style={{ background: 'transparent' }}
         >
-          <div className="absolute top-0 left-0 w-full z-10 h-[400px] opacity-0">
+          <div className="absolute top-0 left-0 w-full z-10 h-[80px] opacity-0">
             <Sheet.Handle>
               <VisuallyHidden.Root>Drag to move sheet</VisuallyHidden.Root>
             </Sheet.Handle>

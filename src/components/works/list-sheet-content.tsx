@@ -185,7 +185,7 @@ export default function ListSheetContent({
           className="h-auto rounded-t-[40px] overflow-hidden bg-gray-3 border-3 border-gray-6 border-b-0"
           style={{ background: 'transparent' }}
         >
-          <div className="absolute top-0 left-0 w-full z-10 h-[40px] opacity-0">
+          <div className="absolute top-0 left-0 w-full z-10 h-[60px] opacity-0">
             <Sheet.Handle>
               <VisuallyHidden.Root>Drag to move sheet</VisuallyHidden.Root>
             </Sheet.Handle>
