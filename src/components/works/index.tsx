@@ -1,6 +1,5 @@
 'use client';
 
-import { getVideoUrlFromBlob } from '@/app/actions/videos';
 import { Sheet, SheetStack, createComponentId } from '@silk-hq/components';
 import { useEffect, useRef, useState } from 'react';
 import { FeebsModal } from '../landing-page/feebs-modal';
@@ -14,22 +13,6 @@ const sheetStackId = createComponentId();
 const listSheetId = createComponentId();
 const projectSheetId = createComponentId();
 
-// Preload component for videos
-function VideoPreloader({ src }: { src: string }) {
-  const [error, setError] = useState(false);
-
-  // Handle loading events
-  const handleError = () => setError(true);
-
-  if (!src || error) return null;
-
-  return (
-    <video preload="auto" muted style={{ display: 'none' }} onError={handleError}>
-      <source src={src} type="video/mp4" />
-    </video>
-  );
-}
-
 // Directly export the Works component - now with a named export as well as default
 export function Works() {
   const [activeSheets, setActiveSheets] = useState<string[]>([]);
@@ -38,68 +21,6 @@ export function Works() {
   const sheetVideoRefs = useRef<Array<HTMLVideoElement | null>>([]);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
   const [listSheetTravelEnded, setListSheetTravelEnded] = useState(false);
-
-  // Store pre-fetched video URLs
-  const [videoUrls, setVideoUrls] = useState<Record<string, string>>({});
-  // Track overall loading state for videos - used for preloading and initial state
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Pre-fetch all video URLs when component mounts
-  useEffect(() => {
-    const fetchAllVideoUrls = async () => {
-      setIsLoading(true);
-      const urlMap: Record<string, string> = {};
-
-      // First fetch thumbnail videos (highest priority)
-      for (const project of projects) {
-        if (project.thumbnail) {
-          try {
-            urlMap[project.thumbnail] = await getVideoUrlFromBlob(project.thumbnail);
-          } catch (error) {
-            console.error('Error loading thumbnail:', error);
-            // Use original path as fallback
-            urlMap[project.thumbnail] = project.thumbnail;
-          }
-        }
-      }
-
-      // Set initial URLs so thumbnails can start loading
-      setVideoUrls({ ...urlMap });
-
-      // Then fetch main project videos
-      for (const project of projects) {
-        if (project.fullVideo) {
-          try {
-            urlMap[project.fullVideo] = await getVideoUrlFromBlob(project.fullVideo);
-          } catch (error) {
-            console.error('Error loading full video:', error);
-            urlMap[project.fullVideo] = project.fullVideo;
-          }
-        }
-      }
-
-      // Update with main videos
-      setVideoUrls({ ...urlMap });
-
-      // Finally fetch feature videos
-      for (const project of projects) {
-        if (project.featureVideo) {
-          try {
-            urlMap[project.featureVideo] = await getVideoUrlFromBlob(project.featureVideo);
-          } catch (error) {
-            console.error('Error loading feature video:', error);
-            urlMap[project.featureVideo] = project.featureVideo;
-          }
-        }
-      }
-
-      // Final update with all videos
-      setVideoUrls({ ...urlMap });
-      setIsLoading(false);
-    };
-
-    fetchAllVideoUrls();
-  }, []);
 
   const openSheet = (sheetName: string) => {
     if (!activeSheets.includes(sheetName)) {
@@ -137,18 +58,7 @@ export function Works() {
     <div className="w-full flex flex-col items-center justify-center">
       <style jsx>{sheetStyles}</style>
 
-      <FeebsModal
-        onButtonClick={() => openSheet('list-sheet')}
-        isLoading={isLoading}
-        className=""
-      />
-
-      {/* Hidden preload section for videos */}
-      <div className="sr-only" aria-hidden="true">
-        {Object.entries(videoUrls).map(([path, url]) => (
-          <VideoPreloader key={path} src={url} />
-        ))}
-      </div>
+      <FeebsModal onButtonClick={() => openSheet('list-sheet')} isLoading={false} className="" />
 
       <SheetStack.Root componentId={sheetStackId}>
         <SheetStack.Outlet>
@@ -198,7 +108,6 @@ export function Works() {
               <ListSheetContent
                 projects={projects}
                 videoRefs={videoRefs}
-                videoUrls={videoUrls}
                 isListSheetScaled={isListSheetScaled}
                 setActiveProjectIndex={setActiveProjectIndex}
                 openSheet={openSheet}
@@ -247,7 +156,6 @@ export function Works() {
                 activeProjectIndex={activeProjectIndex}
                 projects={projects}
                 sheetVideoRefs={sheetVideoRefs}
-                videoUrls={videoUrls}
               />
             </Sheet.View>
           </Sheet.Portal>

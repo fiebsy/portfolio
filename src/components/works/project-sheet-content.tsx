@@ -29,14 +29,12 @@ interface ProjectSheetContentProps {
   activeProjectIndex: number | null;
   projects: Project[];
   sheetVideoRefs: RefObject<Array<HTMLVideoElement | null>>;
-  videoUrls: Record<string, string>;
 }
 
 export default function ProjectSheetContent({
   activeProjectIndex,
   projects,
   sheetVideoRefs,
-  videoUrls,
 }: ProjectSheetContentProps) {
   const [isMainVideoLoaded, setIsMainVideoLoaded] = useState(false);
   const [isFeatureVideoLoaded, setIsFeatureVideoLoaded] = useState(false);
@@ -46,9 +44,6 @@ export default function ProjectSheetContent({
     setIsMainVideoLoaded(false);
     setIsFeatureVideoLoaded(false);
   }, [activeProjectIndex]);
-
-  // Simplified video URL getter
-  const getVideoUrl = (path: string) => videoUrls[path] || path;
 
   return (
     <>
@@ -121,10 +116,7 @@ export default function ProjectSheetContent({
                               objectFit: 'cover',
                             }}
                           >
-                            <source
-                              src={getVideoUrl(projects[activeProjectIndex].fullVideo)}
-                              type="video/mp4"
-                            />
+                            <source src={projects[activeProjectIndex].fullVideo} type="video/mp4" />
                           </video>
                         </div>
 
@@ -339,7 +331,7 @@ export default function ProjectSheetContent({
                               }}
                             >
                               <source
-                                src={getVideoUrl(projects[activeProjectIndex].featureVideo)}
+                                src={projects[activeProjectIndex].featureVideo}
                                 type="video/mp4"
                               />
                             </video>

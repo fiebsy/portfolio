@@ -17,7 +17,6 @@ interface ListItemProps {
   setActiveProjectIndex: (index: number) => void;
   openSheet: (sheetName: string) => void;
   isActive: boolean;
-  videoUrls: Record<string, string>;
 }
 
 function ListItem({
@@ -27,12 +26,10 @@ function ListItem({
   setActiveProjectIndex,
   openSheet,
   isActive,
-  videoUrls,
 }: ListItemProps) {
   const chevronRef = useRef<ChevronRightIconHandle>(null);
   const [isHovering, setIsHovering] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const videoUrl = videoUrls[project.thumbnail] || project.thumbnail;
 
   const handleMouseEnter = () => {
     setIsHovering(true);
@@ -98,7 +95,7 @@ function ListItem({
               maxWidth: '100%' /* Prevents overflow in Safari */,
             }}
           >
-            <source src={videoUrl} type="video/mp4" />
+            <source src={project.thumbnail} type="video/mp4" />
             Your browser does not support HTML video.
           </video>
         </div>
@@ -127,7 +124,6 @@ interface ListSheetContentProps {
   openSheet: (sheetName: string) => void;
   activeProjectIndex: number | null;
   isProjectSheetActive: boolean;
-  videoUrls: Record<string, string>;
   travelEnded?: boolean;
 }
 
@@ -139,7 +135,6 @@ export default function ListSheetContent({
   openSheet,
   activeProjectIndex,
   isProjectSheetActive,
-  videoUrls,
   travelEnded,
 }: ListSheetContentProps) {
   const [animateItems, setAnimateItems] = useState(false);
@@ -244,7 +239,6 @@ export default function ListSheetContent({
                         setActiveProjectIndex={setActiveProjectIndex}
                         openSheet={openSheet}
                         isActive={isProjectSheetActive && activeProjectIndex === index}
-                        videoUrls={videoUrls}
                       />
                     </div>
                   ))}
